@@ -5,7 +5,7 @@ Run program in terminal:
 
 ```
 $ cd working-dir/src
-$ Python Youtube-Crawler.py
+$ Python YouTube.py
 ```
 ### information
 The youtube.db is created in its working directory.
