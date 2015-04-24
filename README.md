@@ -5,7 +5,6 @@ Run program in terminal:
 
 ```
 $ cd working-dir/src
-<<<<<<< Updated upstream
 $ Python YouTube.py
 ```
 ### information
