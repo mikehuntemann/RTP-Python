@@ -7,9 +7,6 @@ Run program in terminal:
 $ cd working-dir/src
 <<<<<<< Updated upstream
 $ Python YouTube.py
-=======
-$ Python Youtube-Crawler.py
->>>>>>> Stashed changes
 ```
 ### information
 The youtube.db is created in its working directory.
@@ -20,14 +17,9 @@ Database can be viewed with the SQLite Browser - [download here].
 Global variable *keyword* is used to specify the topic on the Youtube platform. 
 
 ### missing functions
-<<<<<<< Updated upstream
-- Checking if the current random picked URL was already processed.
-- Covers the URL the topic that was defined as the keyword?
-- Checking the title of the video.
-=======
+
 - Covers the URL the topic that was defined as the keyword?
 - Checking the title of the video
->>>>>>> Stashed changes
 - Checking the information box below the video, including categories. 
 - Downloading the subtitles of the video and put it in the database.
 - Checking the subtitle text for the keyword.
