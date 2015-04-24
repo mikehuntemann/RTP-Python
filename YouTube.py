@@ -64,16 +64,19 @@ def build_new_source():
 	rounds = 0
 	while rounds < 1000:
 		rounds += 1
-		tinyselect = c.execute("""SELECT youtubeid FROM urls ORDER BY RANDOM() LIMIT 1""")
+		tinyselect = c.execute("""SELECT youtubeid FROM urls WHERE randompicked = 0 ORDER BY RANDOM() LIMIT 1""")
+		print tinyselect
 		bob = [str(record[0]) for record in c.fetchall()]
 		tinyurl = bob[0]
+		print tinyurl
+		c.execute("""UPDATE urls SET randompicked = 1 WHERE youtubeid=?""", (tinyurl,))
+		conn.commit()
 		new_url ='http://www.youtube.com/watch?v='+tinyurl
 		print "new url is "+new_url
 		get_all_links(new_url)
-		continue
 
 
 if __name__ == '__main__':
-	#tableCreate()
+	tableCreate()
 	get_all_links('http://www.youtube.com/results?search_query='+keyword)
 	build_new_source()
