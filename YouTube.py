@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/master
 
 import sqlite3
 >>>>>>> origin/master
@@ -14,10 +17,13 @@ import sys
 import os
 sys.path.append(os.path.abspath("lib"))
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 # importing sqlite wrapper
 import sqlite
 =======
+=======
+>>>>>>> origin/master
 
 # importing sqlite wrapper
 import sqlite
@@ -42,6 +48,9 @@ headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'}
 def tableCreate():
 	c.execute("""DROP TABLE IF EXISTS urls""")
 	c.execute("""CREATE TABLE urls (youtubeid text,randompicked int);""")
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master
 
 def get_site_html(url):
@@ -51,11 +60,17 @@ def get_site_html(url):
 	return response
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/master
 def get_random_id():
 	c.execute("""SELECT youtubeid FROM urls WHERE randompicked = 0 ORDER BY RANDOM() LIMIT 1""")		
 	return c.fetchone()[0]
 
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master
 
 def get_all_links(url):
@@ -89,7 +104,11 @@ def build_new_source():
 		rounds += 1
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		tinyurl = sqlite.getRandomID()
+=======
+		tinyurl = get_random_id()
+>>>>>>> origin/master
 =======
 		tinyurl = get_random_id()
 >>>>>>> origin/master
@@ -99,7 +118,12 @@ def build_new_source():
 		get_all_links(new_url)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		sqlite.update(tinyurl)
+=======
+		c.execute("""UPDATE urls SET randompicked = 1 WHERE youtubeid=?""", (tinyurl,))
+		conn.commit()
+>>>>>>> origin/master
 =======
 		c.execute("""UPDATE urls SET randompicked = 1 WHERE youtubeid=?""", (tinyurl,))
 		conn.commit()
@@ -109,8 +133,11 @@ def build_new_source():
 if __name__ == '__main__':
 	sqlite.init(dbName)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	sqlite.createDb()
 =======
+=======
+>>>>>>> origin/master
 	tableCreate()
 >>>>>>> origin/master
 	get_all_links('http://www.youtube.com/results?search_query='+keyword)

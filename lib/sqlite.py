@@ -20,6 +20,7 @@ def save_url(tinyurl):
 		conn.commit()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 def createDb():
 	c.execute("""DROP TABLE IF EXISTS urls""")
 	c.execute("""CREATE TABLE urls (youtubeid text,randompicked int);""")
@@ -32,10 +33,16 @@ def update(tinyurl):
 	c.execute("""UPDATE urls SET randompicked = 1 WHERE youtubeid=?""", (tinyurl,))
 	conn.commit()
 =======
+=======
+>>>>>>> origin/master
 
 
 #def createDb()
 #def getRandom()
 #def exists(url)
+<<<<<<< HEAD
+#def update(url)#
+>>>>>>> origin/master
+=======
 #def update(url)#
 >>>>>>> origin/master
