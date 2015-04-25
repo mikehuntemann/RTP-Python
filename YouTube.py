@@ -1,13 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> origin/master
-
-import sqlite3
->>>>>>> origin/master
 import urllib2
 import urllib
 import re
@@ -16,62 +8,23 @@ import re
 import sys 
 import os
 sys.path.append(os.path.abspath("lib"))
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-# importing sqlite wrapper
-import sqlite
-=======
-=======
->>>>>>> origin/master
 
 # importing sqlite wrapper
 import sqlite
 
-keyword = "nsa"
-dbName = "youtube"
 
-conn = sqlite3.connect('youtube.db')
-c = conn.cursor()
-headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'}
->>>>>>> origin/master
 
 keyword = "nsa"
 dbName = "youtube"
-
-<<<<<<< HEAD
-#conn = sqlite3.connect('youtube.db')
-#c = conn.cursor()
 headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'}
 
-=======
-def tableCreate():
-	c.execute("""DROP TABLE IF EXISTS urls""")
-	c.execute("""CREATE TABLE urls (youtubeid text,randompicked int);""")
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
->>>>>>> origin/master
 
 def get_site_html(url):
 	opener = urllib2.build_opener()
 	request = urllib2.Request(url,None,headers)
 	response = opener.open(request).read()
 	return response
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> origin/master
-def get_random_id():
-	c.execute("""SELECT youtubeid FROM urls WHERE randompicked = 0 ORDER BY RANDOM() LIMIT 1""")		
-	return c.fetchone()[0]
-
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
->>>>>>> origin/master
 
 def get_all_links(url):
 	# Liste, suchen, link checken, liste checken, liste adden, db adden
@@ -103,42 +56,17 @@ def build_new_source():
 	while rounds < 1000:
 		rounds += 1
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 		tinyurl = sqlite.getRandomID()
-=======
-		tinyurl = get_random_id()
->>>>>>> origin/master
-=======
-		tinyurl = get_random_id()
->>>>>>> origin/master
-		
+
 		new_url ='http://www.youtube.com/watch?v='+tinyurl
 		print "new url is "+new_url
 		get_all_links(new_url)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 		sqlite.update(tinyurl)
-=======
-		c.execute("""UPDATE urls SET randompicked = 1 WHERE youtubeid=?""", (tinyurl,))
-		conn.commit()
->>>>>>> origin/master
-=======
-		c.execute("""UPDATE urls SET randompicked = 1 WHERE youtubeid=?""", (tinyurl,))
-		conn.commit()
->>>>>>> origin/master
 
 
 if __name__ == '__main__':
 	sqlite.init(dbName)
-<<<<<<< HEAD
-<<<<<<< HEAD
 	sqlite.createDb()
-=======
-=======
->>>>>>> origin/master
-	tableCreate()
->>>>>>> origin/master
 	get_all_links('http://www.youtube.com/results?search_query='+keyword)
 	build_new_source()
