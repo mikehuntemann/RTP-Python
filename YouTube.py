@@ -15,7 +15,7 @@ import sqlite
 
 
 
-keyword = "nsa"
+keyword = "NSA"
 dbName = "youtube"
 headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'}
 
@@ -53,7 +53,7 @@ def build_new_source():
 	# 100 rounds = approx. 1800 entries to db
 	rounds = 0
 	
-	while rounds < 30:
+	while rounds < 20:
 		rounds += 1
 
 		tinyurl = sqlite.getRandomID()

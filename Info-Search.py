@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import urllib2
 import json
+import re
 # adding library path to imports
 import sys 
 import os
@@ -13,7 +14,7 @@ import sqlite
 
 API_KEY = "AIzaSyAjrnPLRyykFySLHfsrfz9SS7l8p--Rnjg"
 dbName = "youtube"
-
+keyword = "NSA"
 
 def get_site_html(url):
 	opener = urllib2.build_opener()
@@ -36,10 +37,21 @@ def infoSearch():
 		for data in dataset['items']:
 			title = data['snippet']['title']
 			description = data['snippet']['description']
-			sqlite.titleUpdate(title, description, tinyurl)
-			sqlite.infoUpdate(tinyurl)
-			print "infos added to db!"
-			print '--------------'
+			specificSearch(title, description, tinyurl)
+
+
+def specificSearch(title, description, tinyurl):
+	#uppercase / lowercase?
+	if (re.findall(keyword, title)):
+		print "match in " + title
+		sqlite.titleUpdate(title, description, tinyurl)
+		sqlite.infoUpdate(tinyurl)
+	elif (re.findall(keyword, description, re.MULTILINE)):
+		print "match in" + title
+		sqlite.titleUpdate(title, description, tinyurl)
+		sqlite.infoUpdate(tinyurl)
+	else:
+		sqlite.deleteRow(tinyurl)
 
 if __name__ == '__main__':
 	sqlite.init(dbName)

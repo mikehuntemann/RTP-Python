@@ -48,3 +48,7 @@ def getRandomIDforInfo():
 def infoUpdate(tinyurl):
 	c.execute("""UPDATE urls SET infoadded = 1 WHERE youtubeid=?""", (tinyurl,))
 	conn.commit()
+
+def deleteRow(tinyurl):
+	c.execute("""DELETE FROM urls where youtubeid=?""", (tinyurl,))
+	conn.commit()
