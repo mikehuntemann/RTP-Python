@@ -62,7 +62,7 @@ def build_new_source():
 		print "new url is "+new_url
 		get_all_links(new_url)
 
-		sqlite.update(tinyurl)
+		sqlite.pickUpdate(tinyurl)
 
 
 if __name__ == '__main__':
