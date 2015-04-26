@@ -12,7 +12,7 @@ def init(dbName):
 	conn = sqlite3.connect(dbName + '.db')
 	c = conn.cursor()
 
-def save_url(tinyurl):
+def saveUrl(tinyurl):
 	c.execute("""SELECT NOT EXISTS(SELECT * FROM urls WHERE youtubeid=?)""", (tinyurl,))
 	
 	if (c.fetchone()[0]):

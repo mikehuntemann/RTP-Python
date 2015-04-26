@@ -41,7 +41,7 @@ def get_all_links(url):
 				continue
 
 			links.append(tinyurl) 
-			sqlite.save_url(tinyurl)
+			sqlite.saveUrl(tinyurl)
 			i += 1
 	
 	print 'done saving in db!'
@@ -53,7 +53,7 @@ def build_new_source():
 	# 100 rounds = approx. 1800 entries to db
 	rounds = 0
 	
-	while rounds < 1000:
+	while rounds < 30:
 		rounds += 1
 
 		tinyurl = sqlite.getRandomID()
