@@ -16,13 +16,13 @@ def saveUrl(tinyurl):
 	c.execute("""SELECT NOT EXISTS(SELECT * FROM urls WHERE youtubeid=?)""", (tinyurl,))
 	
 	if (c.fetchone()[0]):
-		c.execute("""INSERT INTO urls VALUES (?,"0","-","-","0")""", (tinyurl,))
+		c.execute("""INSERT INTO urls VALUES (?,"0","-","-","0","-","0")""", (tinyurl,))
 		conn.commit()
 
 
 def createDb():
 	c.execute("""DROP TABLE IF EXISTS urls""")
-	c.execute("""CREATE TABLE urls (youtubeid text,randompicked int, title text, description text, infoadded int);""")
+	c.execute("""CREATE TABLE urls (youtubeid text,randompicked int, title text, description text, infoadded int, subtitle text, embedded int);""")
 
 def getRandomID():
 	c.execute("""SELECT youtubeid FROM urls WHERE randompicked = 0 ORDER BY RANDOM() LIMIT 1""")		
@@ -41,6 +41,10 @@ def getDbSize():
 	c.execute("""SELECT COUNT(*) FROM urls""")
 	return c.fetchone()[0]
 
+def getNotPicked():
+	c.execute("""SELECT COUNT(*) FROM urls WHERE randompicked = 0""")
+	return c.fetchone()[0]
+
 def getRandomIDforInfo():
 	c.execute("""SELECT youtubeid FROM urls WHERE infoadded = 0 ORDER BY RANDOM() LIMIT 1""")		
 	return c.fetchone()[0]
@@ -51,4 +55,9 @@ def infoUpdate(tinyurl):
 
 def deleteRow(tinyurl):
 	c.execute("""DELETE FROM urls where youtubeid=?""", (tinyurl,))
+	conn.commit()
+
+def captionUpdate(caption,tinyurl):
+	c.execute("""UPDATE urls SET embedded = 1 WHERE youtubeid=?""", (tinyurl,))
+	c.execute("""UPDATE urls SET subtitle=? WHERE youtubeid=?""", (caption, tinyurl,))
 	conn.commit()
