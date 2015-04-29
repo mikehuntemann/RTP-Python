@@ -14,7 +14,10 @@ ydl = YoutubeDL({
 	#"verbose": True, \ # verbose logging
 	"writesubtitles": True, \
 	"writeautomaticsub": True, \
+<<<<<<< Updated upstream
 	#"allsubtitles": True, \
+=======
+>>>>>>> Stashed changes
 	"skip_download": True, \
 	"outtmpl": "exports/subs/%(id)s", \
 	"subtitleslangs": ["en", "de"]
