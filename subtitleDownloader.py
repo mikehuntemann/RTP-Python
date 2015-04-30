@@ -10,17 +10,33 @@ sys.path.append(os.path.abspath("youtube-dl"))
 
 from youtube_dl import YoutubeDL
 
-ydl = YoutubeDL({
-	#"verbose": True, \ # verbose logging
-	"writesubtitles": True, \
-	"writeautomaticsub": True, \
-<<<<<<< Updated upstream
-	#"allsubtitles": True, \
-=======
->>>>>>> Stashed changes
-	"skip_download": True, \
-	"outtmpl": "exports/subs/%(id)s", \
-	"subtitleslangs": ["en", "de"]
-})
+ydl = None
+sqlite = None
 
-ydl.download(["1gWpmuHAjsU"])
+def init(_sqlite):
+	global ydl, sqlite
+
+	sqlite = _sqlite
+
+	ydl = YoutubeDL({
+		#"verbose": True, \ # verbose logging
+		"writesubtitles": True, \
+		"writeautomaticsub": True, \
+		"skip_download": True, \
+		"outtmpl": "exports/subs/%(id)s", \
+		"subtitleslangs": ["en"]
+	})
+
+
+def getCaption(tinyurl):
+	ydl.download([tinyurl])
+	for files in os.listdir("exports/subs"):
+		if tinyurl in files:
+			print "found file"
+			compelteFilename = "exports/subs/"+tinyurl+".en.srt"
+			content = open(compelteFilename).read().decode("utf8")
+			sqlite.captionUpdate(content,tinyurl)
+			os.remove(compelteFilename)
+			print "file removed"
+
+

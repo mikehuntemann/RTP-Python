@@ -61,3 +61,4 @@ def captionUpdate(caption,tinyurl):
 	c.execute("""UPDATE urls SET embedded = 1 WHERE youtubeid=?""", (tinyurl,))
 	c.execute("""UPDATE urls SET subtitle=? WHERE youtubeid=?""", (caption, tinyurl,))
 	conn.commit()
+	print "sub saved"
