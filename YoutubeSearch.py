@@ -11,10 +11,11 @@ import sys
 import os
 sys.path.append(os.path.abspath("lib"))
 
-# importing sqlite wrapper
+# importing wrapper
 import sqlite
-import subtitleDownloader
 
+import subtitleDownloader
+import analysingData
 
 
 
@@ -88,14 +89,17 @@ def specificSearch(title, description, tinyurl):
 if __name__ == '__main__':
 	# init database
 	sqlite.init(dbName)
-	sqlite.createDb()
+	#sqlite.createDb()
 	
 	# init subtitle downloader
-	subtitleDownloader.init(sqlite)
+	#subtitleDownloader.init(sqlite)
 
+	# init analysing tool
+	analysingData.init(sqlite)
+	analysingData.handleData("MikeData")
 	# search
-	get_all_links('http://www.youtube.com/results?search_query='+keyword)
-	build_new_source()
+	#get_all_links('http://www.youtube.com/results?search_query='+keyword)
+	#build_new_source()
 	
 	
 

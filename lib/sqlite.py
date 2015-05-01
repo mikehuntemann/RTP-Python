@@ -71,3 +71,7 @@ def textUpdate(textFile, tinyurl):
 	c.execute("""UPDATE urls SET textFile=? WHERE youtubeid=?""", (textFile, tinyurl,))
 	conn.commit()
 
+def grabText(tinyurl):
+	c.execute("""SELECT textFile FROM urls WHERE youtubeid=?""", (tinyurl,))
+	return c.fetchone()[0]
+
