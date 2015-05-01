@@ -16,13 +16,13 @@ def saveUrl(tinyurl):
 	c.execute("""SELECT NOT EXISTS(SELECT * FROM urls WHERE youtubeid=?)""", (tinyurl,))
 	
 	if (c.fetchone()[0]):
-		c.execute("""INSERT INTO urls VALUES (?,"0","-","-","0","-","0")""", (tinyurl,))
+		c.execute("""INSERT INTO urls VALUES (?,"0","-","-","0","-","0", "-")""", (tinyurl,))
 		conn.commit()
 
 
 def createDb():
 	c.execute("""DROP TABLE IF EXISTS urls""")
-	c.execute("""CREATE TABLE urls (youtubeid text,randompicked int, title text, description text, infoadded int, subtitle text, embedded int);""")
+	c.execute("""CREATE TABLE urls (youtubeid text,randompicked int, title text, description text, infoadded int, subtitle text, embedded int, textFile text);""")
 
 def getRandomID():
 	c.execute("""SELECT youtubeid FROM urls WHERE randompicked = 0 ORDER BY RANDOM() LIMIT 1""")		
@@ -62,3 +62,12 @@ def captionUpdate(caption,tinyurl):
 	c.execute("""UPDATE urls SET subtitle=? WHERE youtubeid=?""", (caption, tinyurl,))
 	conn.commit()
 	print "sub saved"
+
+def grabCaption(tinyurl):
+	c.execute("""SELECT subtitle FROM urls WHERE youtubeid=?""",(tinyurl,))
+	return c.fetchone()[0]
+
+def textUpdate(textFile, tinyurl):
+	c.execute("""UPDATE urls SET textFile=? WHERE youtubeid=?""", (textFile, tinyurl,))
+	conn.commit()
+

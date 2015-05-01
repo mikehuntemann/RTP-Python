@@ -9,6 +9,8 @@ import os
 sys.path.append(os.path.abspath("youtube-dl"))
 
 from youtube_dl import YoutubeDL
+import re
+import string
 
 ydl = None
 sqlite = None
@@ -38,5 +40,14 @@ def getCaption(tinyurl):
 			sqlite.captionUpdate(content,tinyurl)
 			os.remove(compelteFilename)
 			print "file removed"
+			convertSrtToText(tinyurl)
 
+
+def convertSrtToText(tinyurl):
+	content = sqlite.grabCaption(tinyurl)
+	#regular expression for selection timecode
+	p = re.compile('\n?\n?\n?\d*\n\d*\:\d*\:\d*\,\d*\W\-->\W\d*\:\d*\:\d*\,\d*\W?', re.I|re.M)
+	textFile = p.sub("", content)
+	sqlite.textUpdate(textFile, tinyurl)
+	print "Sub converted to text."
 

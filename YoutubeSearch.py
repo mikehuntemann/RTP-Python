@@ -24,6 +24,15 @@ dbName = "youtube"
 headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'}
 
 
+def build_new_source():
+	while (sqlite.getNotPicked() != 0):
+		tinyurl = sqlite.getRandomID()
+		new_url ='http://www.youtube.com/watch?v='+tinyurl
+		print "new url is "+new_url
+		get_all_links(new_url)
+		sqlite.pickUpdate(tinyurl)
+
+
 def get_site_html(url):
 	opener = urllib2.build_opener()
 	request = urllib2.Request(url,None,headers)
@@ -47,15 +56,6 @@ def get_all_links(url):
 			i += 1
 	
 	print 'done saving in db!'
-
-
-def build_new_source():
-	while (sqlite.getNotPicked() != 0):
-		tinyurl = sqlite.getRandomID()
-		new_url ='http://www.youtube.com/watch?v='+tinyurl
-		print "new url is "+new_url
-		get_all_links(new_url)
-		sqlite.pickUpdate(tinyurl)
 
 
 def infoSearch(tinyurl):
@@ -88,7 +88,7 @@ def specificSearch(title, description, tinyurl):
 if __name__ == '__main__':
 	# init database
 	sqlite.init(dbName)
-	#sqlite.createDb()
+	sqlite.createDb()
 	
 	# init subtitle downloader
 	subtitleDownloader.init(sqlite)
