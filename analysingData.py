@@ -12,6 +12,17 @@ def init(_sqlite):
 	sqlite = _sqlite
 
 def handleData(tinyurl):
+	#nltk.regexp_tokenize(text, pattern)
+	pattern = r'''(?x)    # set flag to allow verbose regexps
+    	([A-Z]\.)+        # abbreviations, e.g. U.S.A.
+   	|	\w+(-\w+)*        # words with optional internal hyphens
+   	|	\$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%
+   	|	\.\.\.            # ellipsis
+   	|	[][.,;"'?():-_`]  # these are separate tokens;
+	'''
+	
+	
+
 	raw = sqlite.grabText(tinyurl)
 	tokens = word_tokenize(raw)
 	text = nltk.Text(tokens)
@@ -20,3 +31,4 @@ def handleData(tinyurl):
 
 	print tokens[:dataLength]
 	print text.concordance('Mike')
+
