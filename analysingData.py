@@ -20,8 +20,6 @@ def handleData(tinyurl):
    	|	\.\.\.            # ellipsis
    	|	[][.,;"'?():-_`]  # these are separate tokens;
 	'''
-	
-	
 
 	raw = sqlite.grabText(tinyurl)
 	tokens = word_tokenize(raw)
