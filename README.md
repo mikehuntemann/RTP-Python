@@ -5,7 +5,7 @@ Run program in terminal:
 
 ```
 $ cd working-dir/src
-$ Python YouTube.py
+$ python YouTube.py
 ```
 ### information
 The youtube.db is created in its working directory.
@@ -19,4 +19,3 @@ Global variable *keyword* is used to specify the topic on the Youtube platform.
 - Subtitle analysis:
   - At what timestamp does the keyword appear in the video?
   - Print out the link including the exact timestamp when the keyword was said.
-
