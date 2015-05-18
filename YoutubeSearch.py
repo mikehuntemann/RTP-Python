@@ -6,32 +6,34 @@ import re
 import requests
 import json
 
+
 # adding library path to imports
 import sys 
 import os
 sys.path.append(os.path.abspath("lib"))
 
 # importing wrapper
-import sqlite
+#import sqlite
+import mongo
 
 import subtitleDownloader
-import analysingData
+#import analysingData
 
 
 
 API_KEY = "AIzaSyAjrnPLRyykFySLHfsrfz9SS7l8p--Rnjg"
 keyword = "NSA"
-dbName = "youtube"
+dbName = 'youtube'
 headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'}
 
 
 def build_new_source():
-	while (sqlite.getNotPicked() != 0):
-		tinyurl = sqlite.getRandomID()
+	while (mongo.getNotPicked() != 0):
+		tinyurl = mongo.getRandomID()
 		new_url ='http://www.youtube.com/watch?v='+tinyurl
 		print "new url is "+new_url
 		get_all_links(new_url)
-		sqlite.pickUpdate(tinyurl)
+		mongo.pickUpdate(tinyurl)
 
 
 def get_site_html(url):
@@ -52,7 +54,7 @@ def get_all_links(url):
 			if tinyurl in links:
 				continue
 			links.append(tinyurl) 
-			sqlite.saveUrl(tinyurl)
+			mongo.saveUrl(tinyurl)
 			infoSearch(tinyurl)
 			i += 1
 	
@@ -72,34 +74,33 @@ def infoSearch(tinyurl):
 def specificSearch(title, description, tinyurl):
 	if (re.findall(keyword, title)):
 		print "match in title"
-		sqlite.titleUpdate(title, description, tinyurl)
-		sqlite.infoUpdate(tinyurl)
+		mongo.titleUpdate(title, description, tinyurl)
+		mongo.infoUpdate(tinyurl)
 		subtitleDownloader.getCaption(tinyurl)
 	elif (re.findall(keyword, description, re.MULTILINE)):
 		print "match in description"
-		sqlite.titleUpdate(title, description, tinyurl)
-		sqlite.infoUpdate(tinyurl)
+		mongo.titleUpdate(title, description, tinyurl)
+		mongo.infoUpdate(tinyurl)
 		subtitleDownloader.getCaption(tinyurl)
 	else:
-		sqlite.deleteRow(tinyurl)
 		print tinyurl+" deleted"
 
 
 
 if __name__ == '__main__':
 	# init database
-	sqlite.init(dbName)
+	#sqlite.init(dbName)
 	#sqlite.createDb()
-	
+	mongo.init()
 	# init subtitle downloader
-	#subtitleDownloader.init(sqlite)
+	subtitleDownloader.init(mongo)
 
 	# init analysing tool
-	analysingData.init(sqlite)
-	analysingData.handleData("MikeData")
+	#analysingData.init(sqlite)
+	#analysingData.handleData("MikeData")
 	# search
-	#get_all_links('http://www.youtube.com/results?search_query='+keyword)
-	#build_new_source()
+	get_all_links('http://www.youtube.com/results?search_query='+keyword)
+	build_new_source()
 	
-	
+
 

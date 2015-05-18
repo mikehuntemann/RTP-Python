@@ -13,13 +13,14 @@ from youtube_dl import YoutubeDL
 ydl = None
 sqlite = None
 
-def init(_sqlite):
-	global ydl, sqlite
+mongo = None
 
-	sqlite = _sqlite
+def init(_mongo):
+	global ydl, mongo
+
+	mongo = _mongo
 
 	ydl = YoutubeDL({
-		#"verbose": True, \ # verbose logging
 		"writesubtitles": True, \
 		"writeautomaticsub": True, \
 		"skip_download": True, \
@@ -35,10 +36,10 @@ def getCaption(tinyurl):
 			print "found file"
 			compelteFilename = "exports/subs/"+tinyurl+".en.srt"
 			content = open(compelteFilename).read().decode("utf8")
-			sqlite.captionUpdate(content,tinyurl)
+			mongo.captionUpdate(content,tinyurl)
 			os.remove(compelteFilename)
 			print "file removed"
-			convertSrtToText(tinyurl)
+			#convertSrtToText(tinyurl)
 
 
 def convertSrtToText(tinyurl):
