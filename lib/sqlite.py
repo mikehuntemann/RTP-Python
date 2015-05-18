@@ -26,7 +26,7 @@ def createDb():
 
 def getRandomID():
 	c.execute("""SELECT youtubeid FROM urls WHERE randompicked = 0 ORDER BY RANDOM() LIMIT 1""")		
-	return c.fetchone()[0]
+	return c.fetchone()[0]	
 
 def pickUpdate(tinyurl):
 	c.execute("""UPDATE urls SET randompicked = 1 WHERE youtubeid=?""", (tinyurl,))

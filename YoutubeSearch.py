@@ -74,12 +74,12 @@ def infoSearch(tinyurl):
 def specificSearch(title, description, tinyurl):
 	if (re.findall(keyword, title)):
 		print "match in title"
-		mongo.titleUpdate(title, description, tinyurl)
+		mongo.titleUpdate(title, tinyurl)
 		mongo.infoUpdate(tinyurl)
 		subtitleDownloader.getCaption(tinyurl)
 	elif (re.findall(keyword, description, re.MULTILINE)):
 		print "match in description"
-		mongo.titleUpdate(title, description, tinyurl)
+		mongo.titleUpdate(title, tinyurl)
 		mongo.infoUpdate(tinyurl)
 		subtitleDownloader.getCaption(tinyurl)
 	else:
@@ -89,15 +89,11 @@ def specificSearch(title, description, tinyurl):
 
 if __name__ == '__main__':
 	# init database
-	#sqlite.init(dbName)
-	#sqlite.createDb()
 	mongo.init()
+
 	# init subtitle downloader
 	subtitleDownloader.init(mongo)
 
-	# init analysing tool
-	#analysingData.init(sqlite)
-	#analysingData.handleData("MikeData")
 	# search
 	get_all_links('http://www.youtube.com/results?search_query='+keyword)
 	build_new_source()

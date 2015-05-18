@@ -10,7 +10,7 @@ def init():
 	global conn, videos
 
 	conn = MongoClient()
-	conn['youtube'].videos.drop()	
+	#conn['youtube'].videos.drop()	
 	db = conn['youtube']
 	videos = db.videos
 
@@ -33,8 +33,9 @@ def getNotPicked():
 	print count
 	return count
 
-def titleUpdate(title, description, tinyurl):
-	videos.update_one({'youtubeid': tinyurl}, {"$set": {'title': title, 'description': description}})
+
+def titleUpdate(title, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'title': title}})
 
 
 def captionUpdate(caption, tinyurl):
@@ -46,5 +47,9 @@ def deleteItem(tinyurl):
 
 
 def infoUpdate(tinyurl):
-	video.update_one({'youtubeid': tinyurl}, {"$set": {'infoadded': 1}})
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'infoadded': 1}})
 
+
+def updateTimecodes(tinyurl, startTime, duration, content):
+	videos.update({'youtubeid': tinyurl}, {"$addToSet": {'subtitle': [{'starttime': startTime, 'duration': duration, 'content': content}]}})
+	

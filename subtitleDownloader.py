@@ -12,8 +12,9 @@ from youtube_dl import YoutubeDL
 
 ydl = None
 sqlite = None
-
+keyword = "NSA"
 mongo = None
+framerate = 24
 
 def init(_mongo):
 	global ydl, mongo
@@ -36,18 +37,66 @@ def getCaption(tinyurl):
 			print "found file"
 			compelteFilename = "exports/subs/"+tinyurl+".en.srt"
 			content = open(compelteFilename).read().decode("utf8")
-			mongo.captionUpdate(content,tinyurl)
+			SrtToEntry(content,tinyurl)
 			os.remove(compelteFilename)
 			print "file removed"
-			#convertSrtToText(tinyurl)
 
 
-def convertSrtToText(tinyurl):
-	content = sqlite.grabCaption(tinyurl)
-	#regular expression for selection timecode
-	p = re.compile('\n?\n?\n?\d*\n\d*\:\d*\:\d*\,\d*\W\-->\W\d*\:\d*\:\d*\,\d*', re.I|re.M)
-	textFile = p.sub("", content)
-	#tokenized = re.split(r'[ \t\n]+', textFile)
-	sqlite.textUpdate(textFile, tinyurl)
-	print "Sub converted to text."
+def SrtToEntry(content, tinyurl):
+	#Splitting subtitle blocks on \n\n
+	pieces = content.split("\n\n")
+	for piece in pieces:
+		try:
+			box = piece.split("\n")
+			content = box[2]
+			rawTimecode = box[1]
+			startTime = getStartTime(rawTimecode)
+			endTime = getEndTime(rawTimecode)
+			timecodeDuration = getDuration(startTime, endTime)
+			duration = timeConvert(timecodeDuration)
+			mongo.updateTimecodes(tinyurl, startTime, duration, content)
+		except:
+			continue
+
+def getStartTime(rawTimecode):
+	content = rawTimecode
+	p = re.compile('\,\d*\W\-->\W\d*\:\d*\:\d*\,\d*', re.I|re.M)
+	startTime = p.sub("",content)
+	return startTime
+
+
+def getEndTime(rawTimecode):
+	content = rawTimecode
+	p = re.compile('\d*\:\d*\:\d*\,\d*\W\-->\W', re.I|re.M)
+	front = p.sub("",content)
+	q = re.compile('\,\d*', re.I|re.M)
+	endTime = q.sub("",front)
+	return endTime
+
+
+def timecode_to_frames(timecode):
+	return sum(f * int(t) for f,t in zip((3600*framerate, 60*framerate, framerate, 1), timecode.split(':')))
+
+
+def frames_to_timecode(frames):
+	return '{0:02d}:{1:02d}:{2:02d}:{3:03d}'.format(frames / (3600*framerate),frames / (60*framerate) % 60,frames / framerate % 60,frames % framerate)
+
+
+def getDuration(startTime, endTime):
+	frames = timecode_to_frames(endTime) - timecode_to_frames(startTime)
+	duration = frames_to_timecode(frames)
+	return duration
+
+
+def timeConvert(timecodeDuration):
+	duration = timecodeDuration.split(":")
+	seconds = duration[2]
+	check = list(seconds)
+	if (check[0] == "0"):
+		return check[1]
+	else:
+		return seconds
+		
+
+
 
