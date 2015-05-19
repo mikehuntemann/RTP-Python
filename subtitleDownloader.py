@@ -12,7 +12,6 @@ from youtube_dl import YoutubeDL
 
 ydl = None
 sqlite = None
-keyword = "NSA"
 mongo = None
 framerate = 24
 

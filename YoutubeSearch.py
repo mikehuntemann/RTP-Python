@@ -13,7 +13,6 @@ import os
 sys.path.append(os.path.abspath("lib"))
 
 # importing wrapper
-#import sqlite
 import mongo
 
 import subtitleDownloader
@@ -86,10 +85,10 @@ def specificSearch(title, description, tinyurl):
 		print tinyurl+" deleted"
 
 
-
 if __name__ == '__main__':
 	# init database
 	mongo.init()
+	mongo.dropAndReconnect()
 
 	# init subtitle downloader
 	subtitleDownloader.init(mongo)
