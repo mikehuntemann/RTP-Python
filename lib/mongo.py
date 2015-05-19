@@ -70,16 +70,18 @@ def updateTimecodes(tinyurl, startTime, duration, content):
 	})
 
 def makeIndex():
-	#subtitles.dropIndex()
 	db.subtitles.ensure_index([("content", TEXT)])
 	db.videos.ensure_index(("youtubeid"), unique = True)
-	#result = subtitles.get_indexes()
-	#print result
+
 
 def findKeyword(keyword):
 	cursor = db.subtitles.find({ "$text": { "$search": keyword}})
 	for document in cursor:
-		print document['content']
+		tinyurl = document['youtubeid']
+		startTime = document['starttime']
+		duration = document['duration']
+		return {'tinyurl':tinyurl, 'startTime': startTime, 'duration':duration}
+
 
 	#cursor = db.subtitles.aggregate(
 	#	[
