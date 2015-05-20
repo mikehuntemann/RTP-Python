@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from pymongo import MongoClient
 from pymongo import TEXT
-
+from pymongo import ASCENDING
 conn = None
 videos = None
 subtitles = None
@@ -71,25 +71,13 @@ def updateTimecodes(tinyurl, startTime, duration, content):
 
 def makeIndex():
 	db.subtitles.ensure_index([("content", TEXT)])
+	db.subtitles.ensure_index(("youtubeid"), ASCENDING)
 	db.videos.ensure_index(("youtubeid"), unique = True)
 
 
 def findKeyword(keyword):
-	cursor = db.subtitles.find({ "$text": { "$search": keyword}})
-	for document in cursor:
-		tinyurl = document['youtubeid']
-		startTime = document['starttime']
-		duration = document['duration']
-		return {'tinyurl':tinyurl, 'startTime': startTime, 'duration':duration}
-
-
-	#cursor = db.subtitles.aggregate(
-	#	[
-	#		{ "$match": { "$text": { "$search": keyword, "$language": "en" } } },
-	#		{ "$project": { "subtitles.content": 1 } }
-	#	]
-	#)
-
-
+	cursor = db.subtitles.find({ "$text": { "$search": keyword}}).sort('youtubeid', ASCENDING)
+	return cursor
+	
 
 
