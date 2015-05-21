@@ -88,13 +88,13 @@ def specificSearch(title, description, tinyurl):
 if __name__ == '__main__':
 	# init database
 	mongo.init()
-	mongo.dropAndReconnect()
+	#mongo.dropAndReconnect()
 
 	# init subtitle downloader
 	subtitleDownloader.init(mongo)
 
 	# search
-	get_all_links('http://www.youtube.com/results?search_query='+keyword)
+	#get_all_links('http://www.youtube.com/results?search_query='+keyword)
 	build_new_source()
 	
 

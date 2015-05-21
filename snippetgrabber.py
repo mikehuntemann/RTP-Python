@@ -17,7 +17,6 @@ sys.path.append(os.path.abspath("lib"))
 import mongo
 
 keyword = "NSA"
-i = 1
 
 ydl_opts = {
 	'outtmpl': 'exports/videos/%(id)s.%(ext)s',
@@ -26,32 +25,39 @@ ydl_opts = {
 
 
 def contentSearch(keyword):
-	
+	counter = 0
+	currentTiny = ""
 	dataset = mongo.findKeyword(keyword)
 	print dataset
 	for document in dataset:
 		tinyurl = document['youtubeid']
+		if (currentTiny != tinyurl):
+			currentTiny = tinyurl
+			counter = 0
 		print tinyurl
 		startTime = document['starttime']
 		print startTime
 		duration = document['duration']
+		duration = duration+2
 		print duration
-		contentDownload(tinyurl, startTime, duration)
-		i += 1
-
-def contentDownload(tinyurl, startTime, duration):
+		counter += 1
+		contentDownload(tinyurl, startTime, duration, counter)
 	
+
+def contentDownload(tinyurl, startTime, duration, _counter):
+	counter = _counter
 	print "contentDownload"
 	with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 		ydl.download([tinyurl])	
 	for files in os.listdir("exports/videos"):
-		if tinyurl in files:
+		if tinyurl in files:	
 			print "file found in videos, start processing."
 			#extract snippet
-			commandline2 = "./ffmpeg -i exports/videos/"+tinyurl+".mp4 -ss "+startTime+" -t "+duration+" -strict -2 exports/snippets/"+tinyurl+"_"+str(i)+".mp4"
-			snippet = shlex.split(commandline2)
+			# -threads 0 <--- multicore processing in ffmpeg
+			commandline = "./ffmpeg -i exports/videos/"+tinyurl+".mp4 -ss "+startTime+" -t "+duration+" -strict -2 exports/snippets/"+tinyurl+"_"+str(counter)+".mp4"
+			snippet = shlex.split(commandline)
 			subprocess.Popen(snippet)
-	
+			print "done."
 	#compelteFilename = "exports/videos/"+tinyurl+".mp4"
 	#os.remove(compelteFilename)
 
