@@ -38,13 +38,15 @@ def build_new_source():
 			continue
 
 def get_site_html(url):
+	respone = None
+	opener = urllib2.build_opener()
 	try:
-		opener = urllib2.build_opener()
 		request = urllib2.Request(url,None,headers)
 		response = opener.open(request).read()
-		return response
 	except:
-		continue
+		pass	
+	return response
+	
 
 def get_all_links(url):
 	links = []

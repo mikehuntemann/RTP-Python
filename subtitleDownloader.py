@@ -41,7 +41,7 @@ def getCaption(tinyurl):
 				os.remove(compelteFilename)
 				print "file removed"
 			except:
-				continue
+				pass
 
 def SrtToEntry(content, tinyurl):
 	#Splitting subtitle blocks on \n\n
