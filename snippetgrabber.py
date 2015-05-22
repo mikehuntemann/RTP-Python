@@ -32,13 +32,18 @@ def contentSearch(keyword):
 	for document in dataset:
 		tinyurl = document['youtubeid']
 		if (currentTiny != tinyurl):
+			compelteFilename = "exports/videos/"+tinyurl+".mp4"
+			try:
+				os.remove(compelteFilename)
 			currentTiny = tinyurl
 			counter = 0
+			
 		print tinyurl
 		startTime = document['starttime']
 		print startTime
 		duration = document['duration']
-		duration = duration+2
+		#aincrease snippet length
+		duration = int(duration)+2
 		print duration
 		counter += 1
 		contentDownload(tinyurl, startTime, duration, counter)
@@ -54,12 +59,11 @@ def contentDownload(tinyurl, startTime, duration, _counter):
 			print "file found in videos, start processing."
 			#extract snippet
 			# -threads 0 <--- multicore processing in ffmpeg
-			commandline = "./ffmpeg -i exports/videos/"+tinyurl+".mp4 -ss "+startTime+" -t "+duration+" -strict -2 exports/snippets/"+tinyurl+"_"+str(counter)+".mp4"
+			commandline = "./ffmpeg -i exports/videos/"+tinyurl+".mp4 -ss "+startTime+" -t "+str(duration)+" -strict -2 exports/snippets/"+tinyurl+"_"+str(counter)+".mp4"
 			snippet = shlex.split(commandline)
 			subprocess.Popen(snippet)
 			print "done."
-	#compelteFilename = "exports/videos/"+tinyurl+".mp4"
-	#os.remove(compelteFilename)
+	
 
 if __name__ == '__main__':
 	mongo.init()

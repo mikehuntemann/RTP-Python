@@ -28,19 +28,23 @@ headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'}
 
 def build_new_source():
 	while (mongo.getNotPicked() != 0):
-		tinyurl = mongo.getRandomID()
-		new_url ='http://www.youtube.com/watch?v='+tinyurl
-		print "new url is "+new_url
-		get_all_links(new_url)
-		mongo.pickUpdate(tinyurl)
-
+		try:
+			tinyurl = mongo.getRandomID()
+			new_url ='http://www.youtube.com/watch?v='+tinyurl
+			print "new url is "+new_url
+			get_all_links(new_url)
+			mongo.pickUpdate(tinyurl)
+		except:
+			continue
 
 def get_site_html(url):
-	opener = urllib2.build_opener()
-	request = urllib2.Request(url,None,headers)
-	response = opener.open(request).read()
-	return response
-
+	try:
+		opener = urllib2.build_opener()
+		request = urllib2.Request(url,None,headers)
+		response = opener.open(request).read()
+		return response
+	except:
+		continue
 
 def get_all_links(url):
 	links = []

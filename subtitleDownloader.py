@@ -34,12 +34,14 @@ def getCaption(tinyurl):
 	for files in os.listdir("exports/subs"):
 		if tinyurl in files:
 			print "found file"
-			compelteFilename = "exports/subs/"+tinyurl+".en.srt"
-			content = open(compelteFilename).read().decode("utf8")
-			SrtToEntry(content,tinyurl)
-			os.remove(compelteFilename)
-			print "file removed"
-
+			try:
+				compelteFilename = "exports/subs/"+tinyurl+".en.srt"
+				content = open(compelteFilename).read().decode("utf8")
+				SrtToEntry(content,tinyurl)
+				os.remove(compelteFilename)
+				print "file removed"
+			except:
+				continue
 
 def SrtToEntry(content, tinyurl):
 	#Splitting subtitle blocks on \n\n
