@@ -31,8 +31,9 @@ def dropAndReconnect():
 def saveUrl(tinyurl):
 	try:
 		videos.insert_one({'youtubeid': tinyurl, 'randompicked': 0,'infoadded': 0})
+		return True
 	except:
-		print "already exists."
+		return False
 
 def getRandomID(skip=True):
 	skipAmount = 0
