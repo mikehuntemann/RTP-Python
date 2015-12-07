@@ -63,35 +63,61 @@ def getAllLinks(url):
 			tinyurl = link.split('=')[-1]
 			if tinyurl not in links:
 				if (mongo.saveUrl(tinyurl)):
-					allLinks.append(tinyurl) 
+					links.append(tinyurl) 
 					getDataFromVideo(tinyurl)
 					counter += 1
 	print counter + " videos added to Mongodb."
 
 
-def getDataFromVideo(tinyurl):
-	url = GOOGLE_API_BASE+tinyurl+'&key='+API_KEY+'&fields=items(id,snippet(title,description),contentDetails(caption))&part=snippet,contentDetails'
-	response = getSiteHtml(url)
-	dataset = json.loads(response)
-	for data in dataset['items']:
+def apiResponseHandler(dataset, fields):
+	# make all data available to specific variables
+	# global?
+
+	for data in dataset['videos']:
+		tinyurl = data['id']
+		published = data['snippet']['publishedAt']
+		channelId = data['snippet']['channelId']
 		title = data['snippet']['title']
 		description = data['snippet']['description']
-		checkContentForMatch(title, description, tinyurl)
+		thumbnailUrl =  data['snippet']['thumbnails']['high']
+		categoryId = data['categoryId']
+		duration = data['contentDetails']['duration']
+		aspectRatio = data['contentDetails']['aspectRatio']
+		viewCount = data['statistics']['viewCount']
+		likeCount = data['statistics']['likeCount']
+		dislikeCount = data['statistics']['dislikeCount']
+		favortiveCount = data['statistics']['favortiveCount']
+		commentCount = data['statistics']['commentCount']
 
+	# return chosen fields as variables
+	return 
 
-def checkContentForMatch(title, description, tinyurl):
-	if (re.findall(SEARCH_KEY, title)):
-		print "match in title"
-		mongo.titleUpdate(title, tinyurl)
-		mongo.infoUpdate(tinyurl)
-		subtitleDownloader.getCaption(tinyurl)
-	elif (re.findall(SEARCH_KEY, description, re.MULTILINE)):
-		print "match in description"
+def getDataFromVideo(tinyurl):
+	url = GOOGLE_API_BASE+tinyurl+'&key='+API_KEY+'&part=snippet,contentDetails,statistics'
+	response = getSiteHtml(url)
+	dataset = json.loads(response)
+	apiResponseHandler(dataset)
+	# woher bekomme ich die variablen?
+	if (checkContentForMatch(title, description):
 		mongo.titleUpdate(title, tinyurl)
 		mongo.infoUpdate(tinyurl)
 		subtitleDownloader.getCaption(tinyurl)
 	else:
-		print tinyurl+" deleted"
+		mongo.deleteItem(tinyurl)
+
+def checkContentForMatch(title, description):
+	if ((re.findall(SEARCH_KEY, title)):
+		print "Match in title."
+		return True
+
+	elif (re.findall(SEARCH_KEY, description, re.MULTILINE)):
+		print "Match in description."
+		return True
+
+	else:
+		print "No match in title / description."
+		return False
+
 
 
 if __name__ == '__main__':
