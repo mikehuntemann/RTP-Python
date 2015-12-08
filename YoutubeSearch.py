@@ -5,7 +5,7 @@ import urllib
 import re
 import requests
 import json
-
+from time import gmtime, strftime 
 
 # adding library path to imports
 import sys 
@@ -29,6 +29,7 @@ DB_KEY = variables["DB_KEY"]
 HEADER = variables["HEADER"]
 GOOGLE_API_BASE = variables["GOOGLE_API_BASE"]
 YOUTUBE_BASE = variables["YOUTUBE_BASE"]
+YOUTUBE_SEARCH_BASE = variables["YOUTUBE_SEARCH_BASE"]
 
 
 def buildNewSource():
@@ -69,53 +70,143 @@ def getAllLinks(url):
 	print counter + " videos added to Mongodb."
 
 
-def apiResponseHandler(dataset, fields):
-	# make all data available to specific variables
-	# global?
+def apiResponseHandler(dataset):
+	for data in dataset['items']:
+		
+		try:
+			tinyurl = data['id']
+		except:
+			pass
 
-	for data in dataset['videos']:
-		tinyurl = data['id']
-		published = data['snippet']['publishedAt']
-		channelId = data['snippet']['channelId']
-		title = data['snippet']['title']
-		description = data['snippet']['description']
-		thumbnailUrl =  data['snippet']['thumbnails']['high']
-		categoryId = data['categoryId']
-		duration = data['contentDetails']['duration']
-		aspectRatio = data['contentDetails']['aspectRatio']
-		viewCount = data['statistics']['viewCount']
-		likeCount = data['statistics']['likeCount']
-		dislikeCount = data['statistics']['dislikeCount']
-		favortiveCount = data['statistics']['favortiveCount']
-		commentCount = data['statistics']['commentCount']
+		try:	
+			publishedAt = data['snippet']['publishedAt']
+			mongo.publishedAtUpdate(publishedAt, tinyurl)
+		except:
+			pass
 
-	# return chosen fields as variables
-	return 
+		try:
+			channelId = data['snippet']['channelId']
+			mongo.channelIdUpdate(channelId, tinyurl)
+		except:
+			pass
+
+		try:	
+			title = data['snippet']['title']
+			mongo.titleUpdate(title, tinyurl)
+		except:
+			pass
+
+		try:
+			description = data['snippet']['description']
+			mongo.description(description, tinyurl)
+		except:
+			pass
+
+		try:
+			thumbnails =  data['snippet']['thumbnails']
+			mongo.thumbnailsUpdate(thumbnails, tinyurl)
+		except:
+			pass
+
+		try:
+			channelTitle = data['snippet']['channelTitle']
+			mongo.channelTitle(channelTitle, tinyurl)
+		except:
+			pass
+
+		try:
+			tags = data['snippet']['tags']
+			mongo.tagsUpdate(tags, tinyurl)
+		except:
+			pass
+
+		try:	
+			categoryId = data['categoryId']
+			mongo.categoryIdUpdate(categoryId, tinyurl)
+		except:
+			pass
+
+		try:
+			defaultAudioLanguage = data['snippet']['defaultAudioLanguage']
+			mongo.defaultAudioLanguageUpdate(defaultAudioLanguage, tinyurl)
+		except:
+			pass
+
+		try:
+			duration = data['contentDetails']['duration']
+			mongo.durationUpdate(duration, tinyurl)
+		except:
+			pass
+
+		try:
+			aspectRatio = data['contentDetails']['aspectRatio']
+			mongo.aspectRatioUpdate(aspectRatio, tinyurl)
+		except:
+			pass
+
+		try:
+			viewCount = data['statistics']['viewCount']
+			mongo.viewCountUpdate(viewCount, tinyurl)
+		except:
+			pass
+		
+		try:
+			likeCount = data['statistics']['likeCount']
+			mongo.likeCountUpdate(likeCount, tinyurl)
+		except:
+			pass
+		
+		try:
+			dislikeCount = data['statistics']['dislikeCount']
+			mongo.dislikeCountUpdate(dislikeCount, tinyurl)
+		except:
+			pass
+		
+		try:
+			favortiveCount = data['statistics']['favortiveCount']
+			mongo.favortiveCountUpdate(favortiveCount, tinyurl)
+		except:
+			pass
+		
+		try:
+			commentCount = data['statistics']['commentCount']
+			mongo.commentCountUpdate(commentCount, tinyurl)
+		except:
+			pass
+
+		crawlDate = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+		mongo.crawlDateUpdate(crawlDate, tinyurl)
+
+
 
 def getDataFromVideo(tinyurl):
 	url = GOOGLE_API_BASE+tinyurl+'&key='+API_KEY+'&part=snippet,contentDetails,statistics'
 	response = getSiteHtml(url)
 	dataset = json.loads(response)
 	apiResponseHandler(dataset)
-	# woher bekomme ich die variablen?
-	if (checkContentForMatch(title, description):
-		mongo.titleUpdate(title, tinyurl)
-		mongo.infoUpdate(tinyurl)
+
+
+	if (checkContentForMatch(title, description, tags):
 		subtitleDownloader.getCaption(tinyurl)
 	else:
 		mongo.deleteItem(tinyurl)
 
-def checkContentForMatch(title, description):
+def checkContentForMatch(title, description, tags):
+	for tag in tags:
+		if (re.findall(SEARCH_KEY, tag)):
+			print "match in tags."
+			return True
+
 	if ((re.findall(SEARCH_KEY, title)):
-		print "Match in title."
+		print "match in title."
 		return True
 
 	elif (re.findall(SEARCH_KEY, description, re.MULTILINE)):
-		print "Match in description."
+		print "match in description."
 		return True
 
 	else:
-		print "No match in title / description."
+		print "no match in title / description."
 		return False
 
 
@@ -129,7 +220,7 @@ if __name__ == '__main__':
 	subtitleDownloader.init(mongo)
 
 	# search
-	getAllLinks('http://www.youtube.com/results?search_query='+SEARCH_KEY)
+	getAllLinks(YOUTUBE_SEARCH_BASE+SEARCH_KEY)
 	#buildNewSource()
 	
 
