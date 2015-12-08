@@ -11,6 +11,9 @@ subtitles = None
 
 SKIP_AMOUNT = 1000
 
+
+# MONGO INITIALISATION SECTION:
+
 def init():
 	global conn, videos, subtitles, db
 
@@ -28,12 +31,21 @@ def dropAndReconnect():
 	videos = db.videos
 	makeIndex()
 
-def saveUrl(tinyurl):
-	try:
-		videos.insert_one({'youtubeid': tinyurl, 'randompicked': 0,'infoadded': 0})
-		return True
-	except:
-		return False
+def makeIndex():
+	db.subtitles.ensure_index([("content", TEXT)])
+	db.subtitles.ensure_index(("youtubeid"), ASCENDING)
+	db.videos.ensure_index(("youtubeid"), unique = True)
+
+# CRAWLER PICK SECTION:	
+
+def pickUpdate(tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'randompicked': 1}})
+
+
+def getNotPicked():
+	count = videos.find({'randompicked': 0}).count()
+	print count
+	return count
 
 def getRandomID(skip=True):
 	skipAmount = 0
@@ -47,35 +59,66 @@ def getRandomID(skip=True):
 		return getRandomID(False)
 
 	return cursor['youtubeid']
-	
-
-def pickUpdate(tinyurl):
-	videos.update_one({'youtubeid': tinyurl}, {"$set": {'randompicked': 1}})
 
 
-def getNotPicked():
-	count = videos.find({'randompicked': 0}).count()
-	print count
-	return count
+# SAVE URL FROM VIDEO:
 
+def saveUrl(tinyurl):
+	try:
+		videos.insert_one({'youtubeid': tinyurl, 'randompicked': 0})
+		return True
+	except:
+		return False
+
+
+# UPDATE SECTION:
 
 def titleUpdate(title, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'title': title}})
 
+def publishedAtUpdate(publishedAt, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'publishedAt': publishedAt}})
 
-def captionUpdate(caption, tinyurl):
-	videos.update_one({'youtubeid': tinyurl}, {"$set": {'caption': caption}})
+def channelIdUpdate(channelId, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'channelId': channelId}})
 
+def channelTitle(channelTitle, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'channelTitle': channelTitle}})
 
-def deleteItem(tinyurl):
-	videos.delete_one({'youtubeid': tinyurl})
+def tagsUpdate(tags, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'tags': tags}})
 
+def categoryIdUpdate(categoryId, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'categoryId': categoryId}})
 
-def infoUpdate(tinyurl):
-	videos.update_one({'youtubeid': tinyurl}, {"$set": {'infoadded': 1}})
+def defaultAudioLanguageUpdate(defaultAudioLanguage, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'defaultAudioLanguage': defaultAudioLanguage}})
 
+def durationUpdate(duration, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'duration': duration}})
 
-def updateTimecodes(tinyurl, startTime, duration, content):
+def aspectRatioUpdate(aspectRatio, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'aspectRatio': aspectRatio}})
+
+def viewCountUpdate(viewCount, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'viewCount': viewCount}})
+
+def likeCountUpdate(likeCount, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'likeCount': likeCount}})
+
+def dislikeCountUpdate(dislikeCount, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'dislikeCount': dislikeCount}})
+
+def favortiveCountUpdate(favortiveCount, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'favortiveCount': favortiveCount}})
+
+def commentCountUpdate(commentCount, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'commentCount': commentCount}})
+
+def crawlDateUpdate(tinyurl, crawlDate):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'crawlDate': crawlDate}})
+
+def timecodeUpdate(tinyurl, startTime, duration, content):
 	subtitles.insert_one({
 		'youtubeid': tinyurl,
 		'starttime': startTime,
@@ -83,21 +126,20 @@ def updateTimecodes(tinyurl, startTime, duration, content):
 		'content': content
 	})
 
-def makeIndex():
-	db.subtitles.ensure_index([("content", TEXT)])
-	db.subtitles.ensure_index(("youtubeid"), ASCENDING)
-	db.videos.ensure_index(("youtubeid"), unique = True)
 
+# DELETE ENTRY:
+
+def deleteItem(tinyurl):
+	videos.delete_one({'youtubeid': tinyurl})
+
+
+# KEYWORD SEARCH:
 
 def findKeyword(keyword):
 	cursor = db.subtitles.find({ "$text": { "$search": keyword}}).sort('youtubeid', ASCENDING)
 	return cursor
 	
-def updateDate(tinyurl, date):
-	videos.update_one({'youtubeid': tinyurl}, {"$set": {'date': date}})
 
-def getUniqueTinys():
-	cursor = db.videos.find({}).sort({'youtubeid': 1})
-	return cursor
+
 
 
