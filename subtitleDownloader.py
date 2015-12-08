@@ -11,7 +11,6 @@ sys.path.append(os.path.abspath("youtube-dl"))
 from youtube_dl import YoutubeDL
 
 ydl = None
-sqlite = None
 mongo = None
 framerate = 24
 
