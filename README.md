@@ -1,21 +1,55 @@
 Youtube-Crawler
-=========================
+====
+###automatic metadata & subtitle downloader
+--------------------
+
 ## setup
-Run program in terminal:
+install [homebrew](https://www.brew.sh) with:
 
 ```
-$ cd working-dir/src
-$ python YouTube.py
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
 ```
-### information
-The youtube.db is created in its working directory.
-Database can be viewed with the SQLite Browser - [download here].
-[download here]: http://sqlitebrowser.org "SQLite Browser Download"
 
-### use
-Global variable *keyword* is used to specify the topic on the Youtube platform. 
+then install python, mongodb, ffmpeg & youtube-dl with brew:
 
-### missing functions
-- Subtitle analysis:
-  - At what timestamp does the keyword appear in the video?
-  - Print out the link including the exact timestamp when the keyword was said.
+```
+brew install python
+brew install mongodb
+brew install ffmpeg
+brew install youtube-dl
+
+```
+
+in addition we need two python libraries:  
+- [Requests 2.8.1](https://pypi.python.org/pypi/requests) - Python HTTP for Humans.   
+- [pymongo 3.2](https://pypi.python.org/pypi/pymongo) - Mongodb for Python
+
+```
+easy_install pymongo
+easy_install requests
+```
+
+## config
+open the settings.json file in your editor of choise.
+change the _API_KEY_ (if you don't have one, check out [developer.google.com](developer.google.com) and register your project).
+change _SEARCH_KEY_ and _DB_KEY_ for your topic.
+
+
+## run programm
+run mongod in your terminal
+
+```
+mongod
+```
+
+make a new terminal window:
+go to the project folder in your terminal and start YoutubeSearch.py
+
+```
+cd /your/project/directory
+python YoutubeSearch.py
+```
+
+## output
+the created metadata / subtitle database can be viewed with [MongoHub](https://github.com/jeromelebel/MongoHub-Mac/)
