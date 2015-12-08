@@ -55,7 +55,7 @@ def SrtToEntry(content, tinyurl):
 			endTime = getEndTime(rawTimecode)
 			timecodeDuration = getDuration(startTime, endTime)
 			duration = timeConvert(timecodeDuration)
-			mongo.updateTimecodes(tinyurl, startTime, duration, content)
+			mongo.timecodeUpdate(tinyurl, startTime, duration, content)
 		except:
 			continue
 
