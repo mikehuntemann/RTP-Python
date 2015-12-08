@@ -1,5 +1,4 @@
 ##Youtube-Crawler
-###automatic metadata & subtitle downloader
 ====
 
 ## setup
