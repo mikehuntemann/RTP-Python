@@ -49,7 +49,8 @@ def buildNewSource():
 
 # DOWNLOAD URLS HTML:
 
-def getSiteHtml(url):
+def getSiteHtml(_url):
+	url = _url
 	respone = None
 	opener = urllib2.build_opener()
 	try:
@@ -62,7 +63,8 @@ def getSiteHtml(url):
 
 # SEARCH FOR ALL LINKS TO YOUTUBE VIDEOS:
 
-def getAllLinks(url):
+def getAllLinks(_url):
+	url = _url
 	links = []
 	counter = 0
 	source = getSiteHtml(url)
@@ -80,12 +82,16 @@ def getAllLinks(url):
 
 # DOWNLOAD METADATA VIA GOOGLE API:
 
-def getDataFromVideo(tinyurl):
+def getDataFromVideo(_tinyurl):
+	tinyurl = _tinyurl
 	url = GOOGLE_API_BASE+tinyurl+'&key='+API_KEY+'&part=snippet,contentDetails,statistics'
 	response = getSiteHtml(url)
 	dataset = json.loads(response)
 	if (apiResponseHandler(dataset)):
-		if (checkContentForMatch(title, description, tags):
+		tags = mongo.getTags(tinyurl)
+		title = mongo.getTitle(tinyurl)
+		description = mongo.getDescription(tinyurl)
+		if (checkContentForMatch(tags, title, description):
 			subtitleDownloader.getCaption(tinyurl)
 		else:
 			mongo.deleteItem(tinyurl)
@@ -206,7 +212,7 @@ def apiResponseHandler(_dataset):
 
 # SEARCH FOR MATCHING CONTENT:
 
-def checkContentForMatch(title, description, tags):
+def checkContentForMatch(tags, title, description):
 	for tag in tags:
 		if (re.findall(SEARCH_KEY, tag)):
 			print "match in tags."
