@@ -36,6 +36,7 @@ def makeIndex():
 	db.subtitles.ensure_index(("youtubeid"), ASCENDING)
 	db.videos.ensure_index(("youtubeid"), unique = True)
 
+
 # CRAWLER PICK SECTION:	
 
 def pickUpdate(tinyurl):
