@@ -14,7 +14,6 @@ then install python, mongodb, ffmpeg & youtube-dl with brew:
 brew install python
 brew install mongodb
 brew install ffmpeg
-brew install youtube-dl
 ```
 
 in addition we need two python libraries:  

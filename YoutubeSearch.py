@@ -213,7 +213,11 @@ def apiResponseHandler(_dataset):
 
 # SEARCH FOR MATCHING CONTENT:
 
-def checkContentForMatch(tags, title, description):
+def checkContentForMatch(_tags, _title, _description):
+	tags = _tags
+	title = _title
+	description = _description
+	
 	for tag in tags:
 		if (re.findall(SEARCH_KEY, tag)):
 			print "match in tags."

@@ -16,7 +16,6 @@ framerate = 24
 
 def init(_mongo):
 	global ydl, mongo
-
 	mongo = _mongo
 
 	ydl = YoutubeDL({
@@ -28,7 +27,8 @@ def init(_mongo):
 	})
 
 
-def getCaption(tinyurl):
+def getCaption(_tinyurl):
+	tinyurl = _tinyurl
 	ydl.download([tinyurl])
 	for files in os.listdir("exports/subs"):
 		if tinyurl in files:
@@ -36,14 +36,16 @@ def getCaption(tinyurl):
 			try:
 				compelteFilename = "exports/subs/"+tinyurl+".en.srt"
 				content = open(compelteFilename).read().decode("utf8")
-				SrtToEntry(content,tinyurl)
+				srtToEntry(content,tinyurl)
 				os.remove(compelteFilename)
 				print "file removed"
 			except:
 				pass
 
-def SrtToEntry(content, tinyurl):
+def srtToEntry(_content, _tinyurl):
 	#Splitting subtitle blocks on \n\n
+	content = _content
+	tinyurl = _tinyurl
 	pieces = content.split("\n\n")
 	for piece in pieces:
 		try:
@@ -58,14 +60,16 @@ def SrtToEntry(content, tinyurl):
 		except:
 			continue
 
-def getStartTime(rawTimecode):
+def getStartTime(_rawTimecode):
+	rawTimecode = _rawTimecode
 	content = rawTimecode
 	p = re.compile('\,\d*\W\-->\W\d*\:\d*\:\d*\,\d*', re.I|re.M)
 	startTime = p.sub("",content)
 	return startTime
 
 
-def getEndTime(rawTimecode):
+def getEndTime(_rawTimecode):
+	rawTimecode = _rawTimecode
 	content = rawTimecode
 	p = re.compile('\d*\:\d*\:\d*\,\d*\W\-->\W', re.I|re.M)
 	front = p.sub("",content)
@@ -74,21 +78,26 @@ def getEndTime(rawTimecode):
 	return endTime
 
 
-def timecode_to_frames(timecode):
+def timecodeToFrames(_timecode):
+	timecode = _timecode
 	return sum(f * int(t) for f,t in zip((3600*framerate, 60*framerate, framerate, 1), timecode.split(':')))
 
 
-def frames_to_timecode(frames):
+def framesToTimecode(_frames):
+	frames = _frames
 	return '{0:02d}:{1:02d}:{2:02d}:{3:03d}'.format(frames / (3600*framerate),frames / (60*framerate) % 60,frames / framerate % 60,frames % framerate)
 
 
-def getDuration(startTime, endTime):
-	frames = timecode_to_frames(endTime) - timecode_to_frames(startTime)
-	duration = frames_to_timecode(frames)
+def getDuration(_startTime, _endTime):
+	startTime = _startTime
+	endTime = _endTime
+	frames = timecodeToFrames(endTime) - timecodeToFrames(startTime)
+	duration = framesToTimecode(frames)
 	return duration
 
 
-def timeConvert(timecodeDuration):
+def timeConvert(_timecodeDuration):
+	timecodeDuration = _timecodeDuration
 	duration = timecodeDuration.split(":")
 	seconds = duration[2]
 	check = list(seconds)
