@@ -1,27 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# IMPORTS:
+
+from time import gmtime, strftime 
 import urllib2
 import urllib
 import re
 import requests
 import json
-from time import gmtime, strftime 
-
-# adding library path to imports
 import sys 
 import os
+
+
+# IMPORTING WRAPPER-LIBS:
+
 sys.path.append(os.path.abspath("lib"))
-
-# importing wrapper
 import mongo
-
 import subtitleDownloader
-#import analysingData
 
+
+# IMPORT GLOBAL VARIABLES FROM SETTINGS.JSON:
 
 with open("settings.json") as settings_file:
 	variables = json.load(settings_file)
-
 
 API_KEY = variables["API_KEY"]
 SEARCH_KEY = variables["SEARCH_KEY"]
@@ -31,6 +33,8 @@ GOOGLE_API_BASE = variables["GOOGLE_API_BASE"]
 YOUTUBE_BASE = variables["YOUTUBE_BASE"]
 YOUTUBE_SEARCH_BASE = variables["YOUTUBE_SEARCH_BASE"]
 
+
+# MAKE NEW URLS FOR CRAWLER:
 
 def buildNewSource():
 	while (mongo.getNotPicked() != 0):
@@ -43,6 +47,8 @@ def buildNewSource():
 		except:
 			continue
 
+# DOWNLOAD URLS HTML:
+
 def getSiteHtml(url):
 	respone = None
 	opener = urllib2.build_opener()
@@ -53,6 +59,8 @@ def getSiteHtml(url):
 		pass	
 	return response
 	
+
+# SEARCH FOR ALL LINKS TO YOUTUBE VIDEOS:
 
 def getAllLinks(url):
 	links = []
@@ -70,7 +78,23 @@ def getAllLinks(url):
 	print counter + " videos added to Mongodb."
 
 
-def apiResponseHandler(dataset):
+# DOWNLOAD METADATA VIA GOOGLE API:
+
+def getDataFromVideo(tinyurl):
+	url = GOOGLE_API_BASE+tinyurl+'&key='+API_KEY+'&part=snippet,contentDetails,statistics'
+	response = getSiteHtml(url)
+	dataset = json.loads(response)
+	if (apiResponseHandler(dataset)):
+		if (checkContentForMatch(title, description, tags):
+			subtitleDownloader.getCaption(tinyurl)
+		else:
+			mongo.deleteItem(tinyurl)
+
+
+# HANDLE JSON RESPONSE FROM GOOGLE API:
+
+def apiResponseHandler(_dataset):
+	dataset = _dataset
 	for data in dataset['items']:
 		
 		try:
@@ -177,19 +201,10 @@ def apiResponseHandler(dataset):
 		crawlDate = strftime("%Y-%m-%d %H:%M:%S", gmtime())
 		mongo.crawlDateUpdate(crawlDate, tinyurl)
 
+		return True
 
 
-def getDataFromVideo(tinyurl):
-	url = GOOGLE_API_BASE+tinyurl+'&key='+API_KEY+'&part=snippet,contentDetails,statistics'
-	response = getSiteHtml(url)
-	dataset = json.loads(response)
-	apiResponseHandler(dataset)
-
-
-	if (checkContentForMatch(title, description, tags):
-		subtitleDownloader.getCaption(tinyurl)
-	else:
-		mongo.deleteItem(tinyurl)
+# SEARCH FOR MATCHING CONTENT:
 
 def checkContentForMatch(title, description, tags):
 	for tag in tags:
@@ -206,20 +221,25 @@ def checkContentForMatch(title, description, tags):
 		return True
 
 	else:
-		print "no match in title / description."
+		print "no match in title / description / tags."
 		return False
 
 
 
 if __name__ == '__main__':
-	# init database
+# INITIATE MONGODB:
+	
 	mongo.init()
 	#mongo.dropAndReconnect()
 
-	# init subtitle downloader
+
+# INITIATE MONGODB FOR SUBTITLEDOWNLOADER:
+	
 	subtitleDownloader.init(mongo)
 
-	# search
+
+# STARTING CRAWLER:
+	
 	getAllLinks(YOUTUBE_SEARCH_BASE+SEARCH_KEY)
 	#buildNewSource()
 	
