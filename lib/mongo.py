@@ -76,6 +76,9 @@ def saveUrl(tinyurl):
 def titleUpdate(title, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'title': title}})
 
+def descriptionUpdate(description, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"set": {'description': description}})
+
 def publishedAtUpdate(publishedAt, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'publishedAt': publishedAt}})
 
@@ -138,8 +141,20 @@ def deleteItem(tinyurl):
 def findKeyword(keyword):
 	cursor = db.subtitles.find({ "$text": { "$search": keyword}}).sort('youtubeid', ASCENDING)
 	return cursor
-	
 
 
+# CONTENT GRABBER:
+
+def getTags(tinyurl):
+	cursor = db.videos.find_one({"youtubeid": tinyurl}, {"tags": 1})
+	return cursor["tags"]
+
+def getTitle(tinyurl):
+	cursor = db.videos.find_one({"youtubeid": tinyurl}, {"title": 1})
+	return cursor["title"]
+
+def getDescription(tinyurl):
+	cursor = db.videos.find_one({"youtubeid": tinyurl}, {"description": 1})
+	return cursor["description"]
 
 
