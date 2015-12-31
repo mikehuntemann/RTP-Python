@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from pymongo import MongoClient
-from pymongo import TEXT
-from pymongo import ASCENDING
+from pymongo import MongoClient, TEXT, ASCENDING
 from random import randint
 
 conn = None
 videos = None
 subtitles = None
+fields = { 'snippet': ['publishedAt', 'channelId', 'title', 'description', 'thumbnails', 'channelTitle', 'tags',
+                           'categoryId', 'defaultAudioLanguage', 'duration', 'aspectRatio', 'viewCount', 'likeCount',
+                           'dislikeCount', 'commentCount']}
 
 SKIP_AMOUNT = 1000
 
@@ -24,6 +25,8 @@ def init():
 	makeIndex()
 
 def dropAndReconnect():
+	global subtitles, videos
+
 	db = conn['youtube']
 	db.videos.drop()	
 	db.subtitles.drop()
@@ -146,16 +149,14 @@ def findKeyword(keyword):
 
 # CONTENT GRABBER:
 
-def getTags(tinyurl):
-	cursor = db.videos.find_one({"youtubeid": tinyurl}, {"tags": 1})
-	return cursor["tags"]
 
-def getTitle(tinyurl):
-	cursor = db.videos.find_one({"youtubeid": tinyurl}, {"title": 1})
-	return cursor["title"]
+def getField(tinyurl, fieldName):
+	global fields
+	fields[fieldName] = 1
+	cursor = db.videos.find_one({"youtubeid": tinyurl}, fields)
+	return cursor[fieldName]
 
-def getDescription(tinyurl):
-	cursor = db.videos.find_one({"youtubeid": tinyurl}, {"description": 1})
-	return cursor["description"]
-
-
+def updateField(tinyurl, fieldName, value):
+	global fields
+	fields[fieldName] = value
+	return videos.update_one({'youtubeid': tinyurl}, {"set": fields})
