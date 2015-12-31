@@ -3,15 +3,12 @@
 
 # IMPORTS:
 
-from time import gmtime, strftime 
-import urllib2
-import urllib
-import re
-import requests
 import json
-import sys 
 import os
-
+import re
+import sys
+import urllib2
+from time import gmtime, strftime
 
 # IMPORTING WRAPPER-LIBS:
 
@@ -92,7 +89,7 @@ def getDataFromVideo(_tinyurl):
 		tags = mongo.getTags(tinyurl)
 		title = mongo.getTitle(tinyurl)
 		description = mongo.getDescription(tinyurl)
-		if (checkContentForMatch(tags, title, description):
+		if (checkContentForMatch(tags, title, description)):
 			subtitleDownloader.getCaption(tinyurl)
 		else:
 			mongo.deleteItem(tinyurl)
@@ -223,7 +220,7 @@ def checkContentForMatch(_tags, _title, _description):
 			print "match in tags."
 			return True
 
-	if ((re.findall(SEARCH_KEY, title)):
+	if (re.findall(SEARCH_KEY, title)):
 		print "match in title."
 		return True
 
