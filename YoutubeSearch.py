@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # IMPORTS:
-
+from pprint import pprint
 import json
 import os
 import re
@@ -19,8 +19,9 @@ import subtitleDownloader
 
 # IMPORT GLOBAL VARIABLES FROM SETTINGS.JSON:
 
-with open("settings.json") as settings_file:
-	variables = json.load(settings_file)
+with open("settings.json") as data_file:
+	data = json.load(data_file)
+	variables = data["data"]
 
 API_KEY = variables["API_KEY"]
 SEARCH_KEY = variables["SEARCH_KEY"]
@@ -49,7 +50,7 @@ def buildNewSource():
 
 def getSiteHtml(_url):
 	url = _url
-	respone = None
+	response = None
 	opener = urllib2.build_opener()
 	try:
 		request = urllib2.Request(url, None, HEADER)
@@ -251,5 +252,3 @@ if __name__ == '__main__':
 	getAllLinks(YOUTUBE_SEARCH_BASE+SEARCH_KEY)
 	#buildNewSource()
 	
-
-
