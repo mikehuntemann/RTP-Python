@@ -21,8 +21,7 @@ in addition we need two python libraries:
 - [pymongo 3.2](https://pypi.python.org/pypi/pymongo) - Mongodb for Python
 
 ```
-easy_install pymongo
-easy_install requests
+pip install pymongo
 ```
 
 ## config
