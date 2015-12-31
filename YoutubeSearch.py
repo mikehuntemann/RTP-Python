@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # IMPORTS:
-from pprint import pprint
 import json
 import os
 import re
@@ -48,22 +47,20 @@ def buildNewSource():
 
 # DOWNLOAD URLS HTML:
 
-def getSiteHtml(_url):
-	url = _url
+def getSiteHtml(url):
 	response = None
 	opener = urllib2.build_opener()
 	try:
 		request = urllib2.Request(url, None, HEADER)
 		response = opener.open(request).read()
 	except:
-		pass	
+		pass
 	return response
-	
+
 
 # SEARCH FOR ALL LINKS TO YOUTUBE VIDEOS:
 
-def getAllLinks(_url):
-	url = _url
+def getAllLinks(url):
 	links = []
 	counter = 0
 	source = getSiteHtml(url)
@@ -73,7 +70,7 @@ def getAllLinks(_url):
 			tinyurl = link.split('=')[-1]
 			if tinyurl not in links:
 				if (mongo.saveUrl(tinyurl)):
-					links.append(tinyurl) 
+					links.append(tinyurl)
 					getDataFromVideo(tinyurl)
 					counter += 1
 	print counter + " videos added to Mongodb."
@@ -81,15 +78,14 @@ def getAllLinks(_url):
 
 # DOWNLOAD METADATA VIA GOOGLE API:
 
-def getDataFromVideo(_tinyurl):
-	tinyurl = _tinyurl
+def getDataFromVideo(tinyurl):
 	url = GOOGLE_API_BASE+tinyurl+'&key='+API_KEY+'&part=snippet,contentDetails,statistics'
 	response = getSiteHtml(url)
 	dataset = json.loads(response)
 	if (apiResponseHandler(dataset)):
-		tags = mongo.getTags(tinyurl)
-		title = mongo.getTitle(tinyurl)
-		description = mongo.getDescription(tinyurl)
+		tags = mongo.getField(tinyurl, "tags")
+		title = mongo.getField(tinyurl, "title")
+		description = mongo.getField(tinyurl, "description")
 		if (checkContentForMatch(tags, title, description)):
 			subtitleDownloader.getCaption(tinyurl)
 		else:
@@ -98,110 +94,21 @@ def getDataFromVideo(_tinyurl):
 
 # HANDLE JSON RESPONSE FROM GOOGLE API:
 
-def apiResponseHandler(_dataset):
-	dataset = _dataset
-	for data in dataset['items']:
-		
-		try:
-			tinyurl = data['id']
-		except:
-			pass
+def apiResponseHandler(dataset):
+	fields = { 'snippet': ['publishedAt', 'channelId', 'title', 'description', 'thumbnails', 'channelTitle', 'tags',
+                           'categoryId', 'defaultAudioLanguage', 'duration', 'aspectRatio', 'viewCount', 'likeCount',
+                           'dislikeCount', 'commentCount']}
 
-		try:	
-			publishedAt = data['snippet']['publishedAt']
-			mongo.publishedAtUpdate(publishedAt, tinyurl)
-		except:
-			pass
-
-		try:
-			channelId = data['snippet']['channelId']
-			mongo.channelIdUpdate(channelId, tinyurl)
-		except:
-			pass
-
-		try:	
-			title = data['snippet']['title']
-			mongo.titleUpdate(title, tinyurl)
-		except:
-			pass
-
-		try:
-			description = data['snippet']['description']
-			mongo.description(description, tinyurl)
-		except:
-			pass
-
-		try:
-			thumbnails =  data['snippet']['thumbnails']
-			mongo.thumbnailsUpdate(thumbnails, tinyurl)
-		except:
-			pass
-
-		try:
-			channelTitle = data['snippet']['channelTitle']
-			mongo.channelTitle(channelTitle, tinyurl)
-		except:
-			pass
-
-		try:
-			tags = data['snippet']['tags']
-			mongo.tagsUpdate(tags, tinyurl)
-		except:
-			pass
-
-		try:	
-			categoryId = data['categoryId']
-			mongo.categoryIdUpdate(categoryId, tinyurl)
-		except:
-			pass
-
-		try:
-			defaultAudioLanguage = data['snippet']['defaultAudioLanguage']
-			mongo.defaultAudioLanguageUpdate(defaultAudioLanguage, tinyurl)
-		except:
-			pass
-
-		try:
-			duration = data['contentDetails']['duration']
-			mongo.durationUpdate(duration, tinyurl)
-		except:
-			pass
-
-		try:
-			aspectRatio = data['contentDetails']['aspectRatio']
-			mongo.aspectRatioUpdate(aspectRatio, tinyurl)
-		except:
-			pass
-
-		try:
-			viewCount = data['statistics']['viewCount']
-			mongo.viewCountUpdate(viewCount, tinyurl)
-		except:
-			pass
-		
-		try:
-			likeCount = data['statistics']['likeCount']
-			mongo.likeCountUpdate(likeCount, tinyurl)
-		except:
-			pass
-		
-		try:
-			dislikeCount = data['statistics']['dislikeCount']
-			mongo.dislikeCountUpdate(dislikeCount, tinyurl)
-		except:
-			pass
-		
-		try:
-			favortiveCount = data['statistics']['favortiveCount']
-			mongo.favortiveCountUpdate(favortiveCount, tinyurl)
-		except:
-			pass
-		
-		try:
-			commentCount = data['statistics']['commentCount']
-			mongo.commentCountUpdate(commentCount, tinyurl)
-		except:
-			pass
+	for item in dataset['items']:
+		tinyurl = data['id']
+		for section in fields.keys():
+			if not item[section]:
+				pass
+		for fieldName in fields[section]:
+			if item[section][fieldName]:
+				updateName = fieldName + 'Update'
+				if hasattr(mongo, updateName):
+					getattr(mongo, updateName)(item[section][fieldName], tinyurl)
 
 		crawlDate = strftime("%Y-%m-%d %H:%M:%S", gmtime())
 		mongo.crawlDateUpdate(crawlDate, tinyurl)
@@ -211,11 +118,8 @@ def apiResponseHandler(_dataset):
 
 # SEARCH FOR MATCHING CONTENT:
 
-def checkContentForMatch(_tags, _title, _description):
-	tags = _tags
-	title = _title
-	description = _description
-	
+def checkContentForMatch(tags, title, description):
+
 	for tag in tags:
 		if (re.findall(SEARCH_KEY, tag)):
 			print "match in tags."
@@ -237,18 +141,18 @@ def checkContentForMatch(_tags, _title, _description):
 
 if __name__ == '__main__':
 # INITIATE MONGODB:
-	
+
 	mongo.init()
-	#mongo.dropAndReconnect()
+	# mongo.dropAndReconnect()
 
 
 # INITIATE MONGODB FOR SUBTITLEDOWNLOADER:
-	
+
 	subtitleDownloader.init(mongo)
 
 
 # STARTING CRAWLER:
-	
+
 	getAllLinks(YOUTUBE_SEARCH_BASE+SEARCH_KEY)
-	#buildNewSource()
-	
+	# buildNewSource()
+
