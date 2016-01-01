@@ -3,12 +3,14 @@
 from pymongo import MongoClient, TEXT, ASCENDING
 from random import randint
 
+db = None
 conn = None
 videos = None
 subtitles = None
-fields = { 'snippet': ['publishedAt', 'channelId', 'title', 'description', 'thumbnails', 'channelTitle', 'tags',
-                           'categoryId', 'defaultAudioLanguage', 'duration', 'aspectRatio', 'viewCount', 'likeCount',
-                           'dislikeCount', 'commentCount']}
+fields = { 'snippet': ['publishedAt', 'channelId', 'title', 'description', 'thumbnails', 'channelTitle', 'tags'],
+			   'contentDetails': ['duration', 'aspectRatio'],
+			   'statistics': ['viewCount', 'likeCount', 'dislikeCount', 'commentCount']
+		}
 
 SKIP_AMOUNT = 1000
 
@@ -25,8 +27,9 @@ def init():
 	makeIndex()
 
 def dropAndReconnect():
-	global subtitles, videos
+	global subtitles, videos, subtitles, db
 
+	conn = MongoClient()
 	db = conn['youtube']
 	db.videos.drop()	
 	db.subtitles.drop()
@@ -81,7 +84,7 @@ def titleUpdate(title, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'title': title}})
 
 def descriptionUpdate(description, tinyurl):
-	videos.update_one({'youtubeid': tinyurl}, {"set": {'description': description}})
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'description': description}})
 
 def publishedAtUpdate(publishedAt, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'publishedAt': publishedAt}})
@@ -89,11 +92,14 @@ def publishedAtUpdate(publishedAt, tinyurl):
 def channelIdUpdate(channelId, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'channelId': channelId}})
 
-def channelTitle(channelTitle, tinyurl):
+def channelTitleUpdate(channelTitle, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'channelTitle': channelTitle}})
 
 def tagsUpdate(tags, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'tags': tags}})
+
+def thumbnailsUpdate(thumbnails, tinyurl):
+	videos.update_one({'youtubeid': tinyurl}, {"$set": {'thumbnails': thumbnails}})
 
 def categoryIdUpdate(categoryId, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'categoryId': categoryId}})
@@ -122,7 +128,7 @@ def favortiveCountUpdate(favortiveCount, tinyurl):
 def commentCountUpdate(commentCount, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'commentCount': commentCount}})
 
-def crawlDateUpdate(tinyurl, crawlDate):
+def crawlDateUpdate(crawlDate, tinyurl):
 	videos.update_one({'youtubeid': tinyurl}, {"$set": {'crawlDate': crawlDate}})
 
 def timecodeUpdate(tinyurl, startTime, duration, content):
@@ -154,7 +160,10 @@ def getField(tinyurl, fieldName):
 	global fields
 	fields[fieldName] = 1
 	cursor = db.videos.find_one({"youtubeid": tinyurl}, fields)
-	return cursor[fieldName]
+	try:
+		return cursor[fieldName]
+	except:
+		return False
 
 def updateField(tinyurl, fieldName, value):
 	global fields
