@@ -6,6 +6,7 @@ import json
 import os
 import re
 import sys
+import requests
 import urllib2
 from time import gmtime, strftime
 
@@ -48,19 +49,15 @@ def buildNewSource():
 # DOWNLOAD URLS HTML:
 
 def getSiteHtml(url):
-	response = None
-	opener = urllib2.build_opener()
-	try:
-		request = urllib2.Request(url, None, HEADER)
-		response = opener.open(request).read()
-	except:
-		pass
+	r = requests.get(url)
+	response = r.text
 	return response
 
 
 # SEARCH FOR ALL LINKS TO YOUTUBE VIDEOS:
 
 def getAllLinks(url):
+	print url
 	links = []
 	counter = 0
 	source = getSiteHtml(url)
@@ -73,7 +70,7 @@ def getAllLinks(url):
 					links.append(tinyurl)
 					getDataFromVideo(tinyurl)
 					counter += 1
-	print counter + " videos added to Mongodb."
+	print str(counter) + " videos added to Mongodb."
 
 
 # DOWNLOAD METADATA VIA GOOGLE API:
@@ -95,35 +92,41 @@ def getDataFromVideo(tinyurl):
 # HANDLE JSON RESPONSE FROM GOOGLE API:
 
 def apiResponseHandler(dataset):
-	fields = { 'snippet': ['publishedAt', 'channelId', 'title', 'description', 'thumbnails', 'channelTitle', 'tags',
-                           'categoryId', 'defaultAudioLanguage', 'duration', 'aspectRatio', 'viewCount', 'likeCount',
-                           'dislikeCount', 'commentCount']}
-
+	fields = { 'snippet': ['publishedAt', 'channelId', 'title', 'description', 'thumbnails', 'channelTitle', 'tags'],
+			   'contentDetails': ['duration'],
+			   'statistics': ['viewCount', 'likeCount', 'dislikeCount', 'commentCount']
+			}
+	print fields.keys()
 	for item in dataset['items']:
-		tinyurl = data['id']
+		tinyurl = item['id']
 		for section in fields.keys():
 			if not item[section]:
-				pass
-		for fieldName in fields[section]:
-			if item[section][fieldName]:
-				updateName = fieldName + 'Update'
-				if hasattr(mongo, updateName):
-					getattr(mongo, updateName)(item[section][fieldName], tinyurl)
+				break
+			for fieldName in fields[section]:
+				try:
+					if item[section][fieldName]:
+						updateName = fieldName + 'Update'
+						if hasattr(mongo, updateName):
+							getattr(mongo, updateName)(item[section][fieldName], tinyurl)
+						else:
+							pass
+				except:
+					pass
 
 		crawlDate = strftime("%Y-%m-%d %H:%M:%S", gmtime())
 		mongo.crawlDateUpdate(crawlDate, tinyurl)
 
-		return True
+	return True
 
 
 # SEARCH FOR MATCHING CONTENT:
 
 def checkContentForMatch(tags, title, description):
-
-	for tag in tags:
-		if (re.findall(SEARCH_KEY, tag)):
-			print "match in tags."
-			return True
+	if tags:
+		for tag in tags:
+			if (re.findall(SEARCH_KEY, tag)):
+				print "match in tags."
+				return True
 
 	if (re.findall(SEARCH_KEY, title)):
 		print "match in title."
@@ -142,8 +145,8 @@ def checkContentForMatch(tags, title, description):
 if __name__ == '__main__':
 # INITIATE MONGODB:
 
-	mongo.init()
-	# mongo.dropAndReconnect()
+	# mongo.init()
+	mongo.dropAndReconnect()
 
 
 # INITIATE MONGODB FOR SUBTITLEDOWNLOADER:
@@ -152,7 +155,6 @@ if __name__ == '__main__':
 
 
 # STARTING CRAWLER:
-
 	getAllLinks(YOUTUBE_SEARCH_BASE+SEARCH_KEY)
-	# buildNewSource()
+	#buildNewSource()
 
