@@ -7,7 +7,7 @@ import sys
 import os
 import shlex
 import subprocess
-import time
+import shutil
 
 sys.path.append(os.path.abspath("youtube-dl"))
 import youtube_dl
@@ -16,7 +16,7 @@ import youtube_dl
 sys.path.append(os.path.abspath("lib"))
 import mongo
 
-keyword = "NSA"
+keyword = "bipolar"
 
 ydl_opts = {
 	'outtmpl': 'exports/videos/%(id)s.%(ext)s',
@@ -40,10 +40,10 @@ def contentSearch(keyword):
 
 			print "----> IdCache length", len(idCache)
 
-			if len(idCache) > 24: # num of cdus
+			if len(idCache) > 8: # num of cdus
 				while (len(idCache) > 24):
 					id = idCache.pop()
-					completeFilename = "/Volumes/HDD-internal/MH/Youtube-Crawler/exports/videos/"+id+".mp4"
+					completeFilename = "exports/videos/"+id+".mp4"
 					print "----------> REMOVING %s" % id
 					try:
 						os.remove(completeFilename)
@@ -67,21 +67,38 @@ def contentSearch(keyword):
 		contentDownload(tinyurl, startTime, duration, counter)
 	
 
-def contentDownload(tinyurl, startTime, duration, _counter):
-	counter = _counter
+def contentDownload(tinyurl, startTime, duration, counter):
 	print "contentDownload"
 	with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 		ydl.download([tinyurl])	
 	for files in os.listdir("exports/videos"):
 		if tinyurl in files:	
 			print "file found in videos, start processing."
-			#extract snippet
-			commandline = "./ffmpeg -i exports/videos/"+tinyurl+".mp4 -ss "+startTime+" -t "+str(duration)+" -strict -2 -v error /Volumes/HDD-internal/MH/Youtube-Crawler/exports/snippets/"+tinyurl+"_"+startTime+"-"+str(duration)+".mp4"
+			commandline = "./ffmpeg -i exports/videos/"+tinyurl+".mp4 -ss "+startTime+" -t "+str(duration)+" -strict -2 -v error exports/snippets/"+tinyurl+"_"+startTime+"-"+str(duration)+".mp4"
 			print tinyurl, startTime, duration
 			snippet = shlex.split(commandline)
 			subprocess.Popen(snippet)
+			# makeASS()
 			print "done."
-	
+
+
+def makeASS(tinyurl, startTime, duration, content):
+	global keyword
+	flag = "{\b1\fs20\c&hFFFF}"+keyword+"{\b0\c}"
+	content.lower()
+	content.replace(keyword, flag)
+	print content
+	newLine = "Dialogue: 0,0:00:00.00,0:00:0"+str(duration)+".00,Flag,,0,0,0,,"+content
+	newFilename = "sub_"+tinyurl+"_"+startTime+"-"+str(duration)+".ass"
+	shutil.copy2('./preset.ass', 'exports/subs'+newFilename)
+	for files in os.listdir("exports/subs"):
+		if newFilename in files:
+			with open(newFilename, 'a') as assFile:
+				assFile.write(newLine)
+				print ".ass written."
+
+
+
 
 if __name__ == '__main__':
 	mongo.init()
