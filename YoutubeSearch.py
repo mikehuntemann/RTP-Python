@@ -7,7 +7,6 @@ import os
 import re
 import sys
 import requests
-import urllib2
 from time import gmtime, strftime
 
 # IMPORTING WRAPPER-LIBS:
@@ -25,6 +24,8 @@ with open("settings.json") as data_file:
 
 API_KEY = variables["API_KEY"]
 SEARCH_KEY = variables["SEARCH_KEY"]
+if (SEARCH_KEY == ""):
+	SEARCH_KEY = None
 DB_KEY = variables["DB_KEY"]
 HEADER = variables["HEADER"]
 GOOGLE_API_BASE = variables["GOOGLE_API_BASE"]
@@ -57,9 +58,7 @@ def getSiteHtml(url):
 # SEARCH FOR ALL LINKS TO YOUTUBE VIDEOS:
 
 def getAllLinks(url):
-	print url
 	links = []
-	counter = 0
 	source = getSiteHtml(url)
 	allLinks = re.findall('\/watch\?v=\w{11}', source)
 	for link in allLinks:
@@ -69,8 +68,6 @@ def getAllLinks(url):
 				if (mongo.saveUrl(tinyurl)):
 					links.append(tinyurl)
 					getDataFromVideo(tinyurl)
-					counter += 1
-	print str(counter) + " videos added to Mongodb."
 
 
 # DOWNLOAD METADATA VIA GOOGLE API:
@@ -80,13 +77,17 @@ def getDataFromVideo(tinyurl):
 	response = getSiteHtml(url)
 	dataset = json.loads(response)
 	if (apiResponseHandler(dataset)):
-		tags = mongo.getField(tinyurl, "tags")
-		title = mongo.getField(tinyurl, "title")
-		description = mongo.getField(tinyurl, "description")
-		if (checkContentForMatch(tags, title, description)):
+		if (SEARCH_KEY == None):
 			subtitleDownloader.getCaption(tinyurl)
 		else:
-			mongo.deleteItem(tinyurl)
+			tags = mongo.getField(tinyurl, "tags")
+			title = mongo.getField(tinyurl, "title")
+			description = mongo.getField(tinyurl, "description")
+			if (checkContentForMatch(tags, title, description)):
+				subtitleDownloader.getCaption(tinyurl)
+			else:
+				mongo.deleteItem(tinyurl)
+				print "deleted Item: "+ tinyurl
 
 
 # HANDLE JSON RESPONSE FROM GOOGLE API:
@@ -96,7 +97,6 @@ def apiResponseHandler(dataset):
 			   'contentDetails': ['duration'],
 			   'statistics': ['viewCount', 'likeCount', 'dislikeCount', 'commentCount']
 			}
-	print fields.keys()
 	for item in dataset['items']:
 		tinyurl = item['id']
 		for section in fields.keys():
@@ -122,19 +122,21 @@ def apiResponseHandler(dataset):
 # SEARCH FOR MATCHING CONTENT:
 
 def checkContentForMatch(tags, title, description):
+	print "checking content in: " + title
 	if tags:
 		for tag in tags:
-			if (re.findall(SEARCH_KEY, tag)):
+			if (re.findall(SEARCH_KEY, tag, re.IGNORECASE)):
 				print "match in tags."
 				return True
+	elif title:
+		if (re.findall(SEARCH_KEY, title, re.IGNORECASE)):
+			print "match in title."
+			return True
 
-	if (re.findall(SEARCH_KEY, title)):
-		print "match in title."
-		return True
-
-	elif (re.findall(SEARCH_KEY, description, re.MULTILINE)):
-		print "match in description."
-		return True
+	elif description:
+		if (re.findall(SEARCH_KEY, description, re.MULTILINE & re.IGNORECASE)):
+			print "match in description."
+			return True
 
 	else:
 		print "no match in title / description / tags."
@@ -145,8 +147,8 @@ def checkContentForMatch(tags, title, description):
 if __name__ == '__main__':
 # INITIATE MONGODB:
 
-	# mongo.init()
-	mongo.dropAndReconnect()
+	mongo.init()
+	# mongo.dropAndReconnect()
 
 
 # INITIATE MONGODB FOR SUBTITLEDOWNLOADER:
@@ -155,6 +157,11 @@ if __name__ == '__main__':
 
 
 # STARTING CRAWLER:
-	getAllLinks(YOUTUBE_SEARCH_BASE+SEARCH_KEY)
-	#buildNewSource()
-
+	if (SEARCH_KEY is not None):
+		for i in range(1, 50):
+			print "collecting links on page " + str(i)
+			getAllLinks(YOUTUBE_SEARCH_BASE+SEARCH_KEY+"&page="+str(i))
+		#buildNewSource()
+	else:
+		# getAllLinks("http://www.youtube.com")
+		buildNewSource()
