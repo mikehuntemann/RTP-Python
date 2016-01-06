@@ -7,9 +7,9 @@ db = None
 conn = None
 videos = None
 subtitles = None
-fields = { 'snippet': ['publishedAt', 'channelId', 'title', 'description', 'thumbnails', 'channelTitle', 'tags'],
-			   'contentDetails': ['duration', 'aspectRatio'],
-			   'statistics': ['viewCount', 'likeCount', 'dislikeCount', 'commentCount']
+fields = { 	'snippet': ['publishedAt', 'channelId', 'title', 'description', 'thumbnails', 'channelTitle', 'tags'],
+			'contentDetails': ['duration', 'aspectRatio'],
+			'statistics': ['viewCount', 'likeCount', 'dislikeCount', 'commentCount']
 		}
 
 SKIP_AMOUNT = 1000
