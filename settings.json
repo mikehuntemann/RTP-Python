@@ -4,8 +4,8 @@
 	  "YOUTUBE_BASE": "http://www.youtube.com/watch?v=",
 	  "GOOGLE_API_BASE": "https://www.googleapis.com/youtube/v3/videos?id=",
 	  "API_KEY": "AIzaSyAjrnPLRyykFySLHfsrfz9SS7l8p--Rnjg",
-	  "SEARCH_KEY": "NSA",
-	  "DB_KEY": "NSA",
+	  "SEARCH_KEY": "",
+	  "DB_KEY": "youtube-db",
 	  "HEADER": "'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'"
 	}
 }
