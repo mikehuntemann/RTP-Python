@@ -78,7 +78,10 @@ def getDataFromVideo(tinyurl):
 	dataset = json.loads(response)
 	if (apiResponseHandler(dataset)):
 		if (SEARCH_KEY == None):
+			title = mongo.getField(tinyurl, "title")
+			print "--> "+title
 			subtitleDownloader.getCaption(tinyurl)
+
 		else:
 			tags = mongo.getField(tinyurl, "tags")
 			title = mongo.getField(tinyurl, "title")
