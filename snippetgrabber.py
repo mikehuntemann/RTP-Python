@@ -8,6 +8,7 @@ import os
 import shlex
 import subprocess
 import shutil
+import re
 
 sys.path.append(os.path.abspath("youtube-dl"))
 import youtube_dl
@@ -16,7 +17,7 @@ import youtube_dl
 sys.path.append(os.path.abspath("lib"))
 import mongo
 
-keyword = "bipolar"
+keyword = "light"
 
 ydl_opts = {
 	'outtmpl': 'exports/videos/%(id)s.%(ext)s',
@@ -41,7 +42,7 @@ def contentSearch(keyword):
 			print "----> IdCache length", len(idCache)
 
 			if len(idCache) > 8: # num of cdus
-				while (len(idCache) > 24):
+				while (len(idCache) > 8):
 					id = idCache.pop()
 					completeFilename = "exports/videos/"+id+".mp4"
 					print "----------> REMOVING %s" % id
@@ -62,7 +63,7 @@ def contentSearch(keyword):
 			duration += 4
 		else:
 			duration += 2
-		print duration
+		duration = str(duration)
 		counter += 1
 		contentDownload(tinyurl, startTime, duration, counter)
 	
@@ -74,26 +75,42 @@ def contentDownload(tinyurl, startTime, duration, counter):
 	for files in os.listdir("exports/videos"):
 		if tinyurl in files:	
 			print "file found in videos, start processing."
-			commandline = "./ffmpeg -i exports/videos/"+tinyurl+".mp4 -ss "+startTime+" -t "+str(duration)+" -strict -2 -v error exports/snippets/"+tinyurl+"_"+startTime+"-"+str(duration)+".mp4"
+			commandline = "./ffmpeg -i exports/videos/"+tinyurl+".mp4 -ss "+startTime+" -t "+duration+" -strict -2 -v error exports/snippets/"+tinyurl+"_"+startTime+"-"+duration+".mp4"
 			print tinyurl, startTime, duration
 			snippet = shlex.split(commandline)
 			subprocess.Popen(snippet)
-			# makeASS()
+			makeASS(tinyurl, startTime, duration)
 			print "done."
 
 
-def makeASS(tinyurl, startTime, duration, content):
+def makeASS(tinyurl, startTime, duration):
 	global keyword
-	flag = "{\b1\fs20\c&hFFFF}"+keyword+"{\b0\c}"
-	content.lower()
-	content.replace(keyword, flag)
+	dataset = mongo.getSubContent(tinyurl, startTime)
+	content = dataset['content']
 	print content
-	newLine = "Dialogue: 0,0:00:00.00,0:00:0"+str(duration)+".00,Flag,,0,0,0,,"+content
-	newFilename = "sub_"+tinyurl+"_"+startTime+"-"+str(duration)+".ass"
-	shutil.copy2('./preset.ass', 'exports/subs'+newFilename)
-	for files in os.listdir("exports/subs"):
+	content.lower()
+	print "content length is: " + str(len(content))
+	words = content.split(" ")
+	words[words.index(keyword)] = "{\b1\fs20\c&hFFFF}"+keyword+"{\b0\c}"
+	print words
+	if len(words) > 50:
+		firstLine = words[:len(words)/2]
+		firstLine = ' '.join(firstLine)
+		print "firstline: " + firstLine
+		secondLine = words[len(words)/2:]
+		secondLine =   ' '.join(secondLine)
+		print "secondline: " + secondLine
+		subcontent = firstLine + "\n" + secondLine
+		print subcontent
+	else:
+		subcontent = ' '.join(words)
+		print subcontent
+	newLine = "\nDialogue: 0,0:00:00.00,0:00:0"+str(duration)+".00,Flag,,0,0,0,,"+subcontent
+	newFilename = tinyurl+"_"+startTime+"-"+str(duration)+".ass"
+	shutil.copy2('./preset.ass', 'exports/subs/'+newFilename)
+	for files in os.listdir("exports/subs/"):
 		if newFilename in files:
-			with open(newFilename, 'a') as assFile:
+			with open("exports/subs/"+newFilename, "a") as assFile:
 				assFile.write(newLine)
 				print ".ass written."
 
