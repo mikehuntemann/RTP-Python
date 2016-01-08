@@ -139,7 +139,8 @@ def timecodeUpdate(tinyurl, startTime, duration, content):
 		'content': content
 	})
 
-
+def updateSubAndSnippet(filename):
+	videos.insert_one({'filename': filename})
 # DELETE ENTRY:
 
 def deleteItem(tinyurl):
@@ -149,11 +150,17 @@ def deleteItem(tinyurl):
 # KEYWORD SEARCH:
 
 def findKeyword(keyword):
+	# { "$text": { "$search": "\"lightness\""} }
+	keyword = "\\"+keyword+"\\"
 	cursor = db.subtitles.find({ "$text": { "$search": keyword}}).sort('youtubeid', ASCENDING)
 	return cursor
 
 
 # CONTENT GRABBER:
+
+def getSubContent(tinyurl, startTime):
+	cursor = db.subtitles.find_one({"youtubeid": tinyurl, "starttime": startTime})
+	return cursor
 
 
 def getField(tinyurl, fieldName):
